@@ -155,16 +155,16 @@ export function OnboardingForm() {
       <div className="mb-8">
         <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 px-1">
           <span>Passo {currentStep} de {totalSteps}</span>
-          <span className="text-rose-900">
+          <span className="text-[#4D58F6]">
             {Math.round((currentStep / totalSteps) * 100)}% concluido
           </span>
         </div>
-        <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(77,88,246,0.12)]">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
             transition={{ ease: "easeInOut", duration: 0.4 }}
-            className="bg-rose-900 h-full"
+            className="h-full bg-[linear-gradient(90deg,#2388F5_0%,#8E22FF_100%)]"
           />
         </div>
       </div>
@@ -240,11 +240,7 @@ export function OnboardingForm() {
           {currentStep < totalSteps ? (
             <Button type="submit">Proximo passo</Button>
           ) : (
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-rose-900 text-white hover:bg-rose-950 disabled:cursor-not-allowed disabled:opacity-70"
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Enviando..." : "Enviar solicitacao de cadastro"}
             </Button>
           )}

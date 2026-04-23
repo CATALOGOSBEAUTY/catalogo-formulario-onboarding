@@ -13,43 +13,51 @@ interface Props {
 
 export function SchedulingConfigForm({ data, updateData }: Props) {
   return (
-    <Card className="w-full mx-auto max-w-3xl">
+    <Card className="mx-auto w-full max-w-3xl">
       <CardHeader>
         <CardTitle>
-          <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] shrink-0">03</span>
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(37,136,245,0.14)_0%,rgba(142,34,255,0.16)_100%)] text-[10px] text-[#3640D7]">
+            03
+          </span>
           AGENDAMENTO E REGRAS
         </CardTitle>
-        <CardDescription>Defina como será feito o agendamento e quais as suas políticas de atendimento.</CardDescription>
+        <CardDescription>
+          Defina como sera feito o agendamento e quais sao as suas politicas de atendimento.
+        </CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-6">
-        
         <div className="space-y-2">
           <Label htmlFor="schedulingModel" className="flex items-center gap-1">
             Modelo de agendamento desejado <span className="text-red-500">*</span>
           </Label>
-          <Select 
+          <Select
             id="schedulingModel"
             value={data.schedulingModel}
             onChange={(e) => updateData({ schedulingModel: e.target.value })}
             required
           >
-            <option value="" disabled>Selecione um modelo...</option>
+            <option value="" disabled>
+              Selecione um modelo...
+            </option>
             <option value="whatsapp">Via WhatsApp</option>
             <option value="google_whatsapp">Google Agenda + WhatsApp</option>
-            <option value="plataforma_completa">Plataforma Completa</option>
+            <option value="plataforma_completa">Plataforma completa</option>
           </Select>
         </div>
 
-        <div className="space-y-4 pt-4 border-t border-slate-100">
-          <h4 className="text-sm font-semibold text-slate-800">Política de Cancelamento e Reagendamento</h4>
-          
+        <div className="space-y-4 border-t border-[rgba(77,88,246,0.12)] pt-4">
+          <h4 className="text-sm font-semibold text-slate-800">
+            Politica de cancelamento e reagendamento
+          </h4>
+
           <div className="space-y-2">
             <Label htmlFor="cancellationFine" className="flex items-center gap-1">
               Valor da multa para cancelamento <span className="text-red-500">*</span>
             </Label>
-            <Input 
-              id="cancellationFine" 
-              placeholder="Ex: R$ 50,00 ou 20%" 
+            <Input
+              id="cancellationFine"
+              placeholder="Ex: R$ 50,00 ou 20%"
               value={data.cancellationFine}
               onChange={(e) => updateData({ cancellationFine: e.target.value })}
               required
@@ -58,11 +66,11 @@ export function SchedulingConfigForm({ data, updateData }: Props) {
 
           <div className="space-y-2">
             <Label htmlFor="rescheduleDetails" className="flex items-center gap-1">
-              Para reagendamento vai ter alguma multa? Coloque aqui as informações detalhadas <span className="text-red-500">*</span>
+              Regras detalhadas para reagendamento <span className="text-red-500">*</span>
             </Label>
-            <Textarea 
-              id="rescheduleDetails" 
-              placeholder="Descreva as condições de reagendamento..." 
+            <Textarea
+              id="rescheduleDetails"
+              placeholder="Descreva as condicoes de reagendamento..."
               value={data.rescheduleDetails}
               onChange={(e) => updateData({ rescheduleDetails: e.target.value })}
               required
@@ -70,17 +78,18 @@ export function SchedulingConfigForm({ data, updateData }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="upfrontCost" className="flex items-center gap-1">Para agendar a consulta paga algum valor? <span className="text-red-500">*</span></Label>
-            <Input 
-              id="upfrontCost" 
-              placeholder="Ex: Pagamento adiantado de 50%" 
+            <Label htmlFor="upfrontCost" className="flex items-center gap-1">
+              Existe valor antecipado para agendar? <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="upfrontCost"
+              placeholder="Ex: Pagamento adiantado de 50%"
               value={data.upfrontCost}
               onChange={(e) => updateData({ upfrontCost: e.target.value })}
               required
             />
           </div>
         </div>
-
       </CardContent>
     </Card>
   );

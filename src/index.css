@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+:root {
+  --brand-ink: #16181d;
+  --brand-surface: #f7f9ff;
+  color: var(--brand-ink);
+  background-color: var(--brand-surface);
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--brand-surface);
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(35, 136, 245, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(142, 34, 255, 0.16), transparent 30%),
+    linear-gradient(180deg, #fafbff 0%, #f3f6ff 100%);
+  color: var(--brand-ink);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(77, 88, 246, 0.22);
+  color: var(--brand-ink);
+}

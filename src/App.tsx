@@ -9,6 +9,10 @@ import { HeroBanner } from "@/src/modules/Hero";
 import { OnboardingForm } from "@/src/modules/OnboardingForm";
 
 export default function App() {
+  React.useEffect(() => {
+    document.title = "Sistematize";
+  }, []);
+
   return (
     <Layout>
       <div className="w-full relative">
