@@ -18,11 +18,12 @@ Copie `.env.example` para `.env.local` e preencha:
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_STORAGE_BUCKET`
-- `COMPANY_WHATSAPP_NUMBER`
 - `EVOLUTION_API_URL`
 - `EVOLUTION_API_KEY`
 - `EVOLUTION_INSTANCE_NAME`
 - `MAX_FILE_SIZE_BYTES`
+
+O destino do WhatsApp e resolvido automaticamente pelo `ownerJid` da instancia configurada em `EVOLUTION_INSTANCE_NAME`. O backend nao usa numero manual para evitar envio para o destino errado.
 
 ## Desenvolvimento local
 

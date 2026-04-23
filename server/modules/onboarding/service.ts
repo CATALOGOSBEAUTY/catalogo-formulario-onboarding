@@ -15,6 +15,18 @@ interface CreateOnboardingServiceDeps {
   fetchImpl?: typeof fetch;
 }
 
+interface EvolutionInstanceRecord {
+  name?: string;
+  ownerJid?: string;
+  instance?: {
+    instanceName?: string;
+  };
+  owner?: {
+    id?: string;
+    jid?: string;
+  };
+}
+
 function sanitizeDigits(value: string) {
   return value.replace(/\D/g, "");
 }
@@ -25,6 +37,85 @@ function sanitizeSegment(value: string) {
     .replace(/[^a-z0-9.-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+function getEvolutionHeaders(apiKey: string) {
+  return {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    apikey: apiKey,
+    Authorization: `Bearer ${apiKey}`,
+  };
+}
+
+function parseEvolutionInstances(payload: unknown): EvolutionInstanceRecord[] {
+  if (Array.isArray(payload)) {
+    return payload as EvolutionInstanceRecord[];
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+
+  const candidate = payload as {
+    value?: unknown;
+    instances?: unknown;
+  };
+
+  if (Array.isArray(candidate.value)) {
+    return candidate.value as EvolutionInstanceRecord[];
+  }
+
+  if (Array.isArray(candidate.instances)) {
+    return candidate.instances as EvolutionInstanceRecord[];
+  }
+
+  return [];
+}
+
+function extractInstanceName(instance: EvolutionInstanceRecord) {
+  return instance.name ?? instance.instance?.instanceName ?? "";
+}
+
+function extractInstanceOwnerJid(instance: EvolutionInstanceRecord) {
+  return instance.ownerJid ?? instance.owner?.jid ?? instance.owner?.id ?? "";
+}
+
+async function resolveInstanceDestinationNumber(env: AppEnv, fetchImpl: typeof fetch) {
+  const response = await fetchImpl(
+    `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/instance/fetchInstances`,
+    {
+      method: "GET",
+      headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Falha ao consultar instancia Evolution: ${errorText}`);
+  }
+
+  const payload = (await response.json()) as unknown;
+  const instances = parseEvolutionInstances(payload);
+  const instance = instances.find(
+    (candidate) => extractInstanceName(candidate) === env.EVOLUTION_INSTANCE_NAME,
+  );
+
+  if (!instance) {
+    throw new Error(
+      `Instancia Evolution nao encontrada: ${env.EVOLUTION_INSTANCE_NAME}`,
+    );
+  }
+
+  const destinationNumber = sanitizeDigits(extractInstanceOwnerJid(instance));
+
+  if (!destinationNumber) {
+    throw new Error(
+      `Instancia Evolution sem ownerJid valido: ${env.EVOLUTION_INSTANCE_NAME}`,
+    );
+  }
+
+  return destinationNumber;
 }
 
 async function uploadFiles(
@@ -66,18 +157,14 @@ async function sendWhatsAppMessage(
   fetchImpl: typeof fetch,
   input: OnboardingSubmissionInput,
 ) {
+  const destinationNumber = await resolveInstanceDestinationNumber(env, fetchImpl);
   const response = await fetchImpl(
     `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendText/${env.EVOLUTION_INSTANCE_NAME}`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        apikey: env.EVOLUTION_API_KEY,
-        Authorization: `Bearer ${env.EVOLUTION_API_KEY}`,
-      },
+      headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
       body: JSON.stringify({
-        number: sanitizeDigits(env.COMPANY_WHATSAPP_NUMBER),
+        number: destinationNumber,
         text: formatOnboardingWhatsAppMessage(input),
       }),
     },
