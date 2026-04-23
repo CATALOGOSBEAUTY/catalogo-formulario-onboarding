@@ -151,15 +151,15 @@ export function OnboardingForm() {
   }
 
   return (
-    <div className="w-full relative z-10 max-w-3xl mx-auto overflow-hidden pb-12">
+    <div className="relative z-10 mx-auto w-full max-w-4xl overflow-hidden rounded-[2rem] border border-[rgba(77,88,246,0.1)] bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(234,240,255,0.55)_100%)] px-5 pb-12 pt-6 shadow-[0_30px_90px_rgba(49,67,136,0.08)]">
       <div className="mb-8">
-        <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2 px-1">
+        <div className="mb-2 flex justify-between px-1 text-[10px] font-bold uppercase tracking-wider text-slate-700">
           <span>Passo {currentStep} de {totalSteps}</span>
-          <span className="text-[#4D58F6]">
+          <span className="text-[#3E49F1]">
             {Math.round((currentStep / totalSteps) * 100)}% concluido
           </span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[rgba(77,88,246,0.12)]">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(77,88,246,0.16)] shadow-[inset_0_1px_2px_rgba(61,78,140,0.08)]">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${(currentStep / totalSteps) * 100}%` }}

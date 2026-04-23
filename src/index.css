@@ -2,7 +2,7 @@
 
 :root {
   --brand-ink: #16181d;
-  --brand-surface: #f7f9ff;
+  --brand-surface: #eef3ff;
   color: var(--brand-ink);
   background-color: var(--brand-surface);
   font-family: "Segoe UI", Arial, Helvetica, sans-serif;
@@ -20,9 +20,9 @@ body {
   min-width: 320px;
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(35, 136, 245, 0.16), transparent 28%),
-    radial-gradient(circle at top right, rgba(142, 34, 255, 0.16), transparent 30%),
-    linear-gradient(180deg, #fafbff 0%, #f3f6ff 100%);
+    radial-gradient(circle at top left, rgba(35, 136, 245, 0.26), transparent 26%),
+    radial-gradient(circle at top right, rgba(142, 34, 255, 0.24), transparent 28%),
+    linear-gradient(180deg, #f5f8ff 0%, #e8efff 52%, #e1e9fb 100%);
   color: var(--brand-ink);
 }
 
