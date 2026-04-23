@@ -44,7 +44,7 @@ export function createApp(options: CreateAppOptions = {}) {
 
   app.use("/api", createOnboardingRouter(defaultService));
 
-  const clientDistPath = path.resolve(__dirname, "../dist");
+  const clientDistPath = path.resolve(__dirname, "../../dist");
   app.use(express.static(clientDistPath));
 
   app.get(/^\/(?!api).*/, (_req, res) => {
