@@ -8,6 +8,7 @@ import { MediaTechForm } from "./components/MediaTechForm";
 import type { OnboardingFormState } from "./types";
 import { Button } from "@/src/components/ui/Button";
 import { submitOnboardingForm } from "./api";
+import { getStepValidationError } from "./validation";
 
 const INITIAL_STATE: OnboardingFormState = {
   fullName: "",
@@ -53,6 +54,12 @@ export function OnboardingForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError("");
+
+    const stepError = getStepValidationError(currentStep, data);
+    if (stepError) {
+      setSubmitError(stepError);
+      return;
+    }
 
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
