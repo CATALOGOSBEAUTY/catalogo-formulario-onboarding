@@ -152,12 +152,45 @@ async function uploadFiles(
   return uploadedFiles;
 }
 
-async function sendWhatsAppMessage(
+function getMediaType(mimeType: string) {
+  if (mimeType.startsWith("image/")) {
+    return "image";
+  }
+
+  if (mimeType.startsWith("video/")) {
+    return "video";
+  }
+
+  return "document";
+}
+
+function buildMediaCaption(file: OnboardingUploadedFile, index: number) {
+  const label = file.category === "procedures" ? "Procedimentos" : "Fachada e ambiente";
+  return `${label} ${index + 1}: ${file.originalName}`;
+}
+
+function deriveProfessionalsFromServices(input: OnboardingSubmissionInput) {
+  const grouped = new Map<string, Set<string>>();
+
+  input.services.forEach((service) => {
+    const current = grouped.get(service.professionalName) || new Set<string>();
+    current.add(service.name);
+    grouped.set(service.professionalName, current);
+  });
+
+  return Array.from(grouped.entries()).map(([name, services]) => ({
+    name,
+    role: "Profissional vinculado",
+    serviceConfig: Array.from(services).join(", "),
+  }));
+}
+
+async function sendWhatsAppTextMessage(
   env: AppEnv,
   fetchImpl: typeof fetch,
+  destinationNumber: string,
   input: OnboardingSubmissionInput,
 ) {
-  const destinationNumber = await resolveInstanceDestinationNumber(env, fetchImpl);
   const response = await fetchImpl(
     `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendText/${env.EVOLUTION_INSTANCE_NAME}`,
     {
@@ -173,6 +206,38 @@ async function sendWhatsAppMessage(
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Falha ao enviar mensagem via Evolution: ${errorText}`);
+  }
+}
+
+async function sendWhatsAppMediaMessages(
+  env: AppEnv,
+  fetchImpl: typeof fetch,
+  destinationNumber: string,
+  files: OnboardingUploadedFile[],
+) {
+  for (let index = 0; index < files.length; index += 1) {
+    const file = files[index];
+
+    const response = await fetchImpl(
+      `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendMedia/${env.EVOLUTION_INSTANCE_NAME}`,
+      {
+        method: "POST",
+        headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
+        body: JSON.stringify({
+          number: destinationNumber,
+          mediatype: getMediaType(file.mimeType),
+          mimetype: file.mimeType,
+          caption: buildMediaCaption(file, index),
+          media: file.buffer.toString("base64"),
+          fileName: file.originalName,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Falha ao enviar midia via Evolution: ${errorText}`);
+    }
   }
 }
 
@@ -247,8 +312,9 @@ export function createOnboardingService({
         throw new Error(`Falha ao salvar servicos: ${servicesError.message}`);
       }
 
+      const derivedProfessionals = deriveProfessionalsFromServices(input);
       const { error: professionalsError } = await supabase.from("onboarding_professionals").insert(
-        input.professionals.map((professional, index) => ({
+        derivedProfessionals.map((professional, index) => ({
           id: randomUUID(),
           submission_id: submissionId,
           name: professional.name,
@@ -263,7 +329,9 @@ export function createOnboardingService({
       }
 
       try {
-        await sendWhatsAppMessage(env, fetchImpl, input);
+        const destinationNumber = await resolveInstanceDestinationNumber(env, fetchImpl);
+        await sendWhatsAppTextMessage(env, fetchImpl, destinationNumber, input);
+        await sendWhatsAppMediaMessages(env, fetchImpl, destinationNumber, input.files);
         await supabase
           .from("onboarding_submissions")
           .update({

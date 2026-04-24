@@ -1,16 +1,36 @@
 import type {
+  DurationUnit,
   OnboardingFormState,
+  PriceUnit,
   SubmitOnboardingResponse,
 } from "./types";
 
-function appendFiles(formData: FormData, fieldName: string, files: FileList | null) {
-  if (!files) {
+function appendFiles(formData: FormData, fieldName: string, files: File[]) {
+  if (files.length === 0) {
     return;
   }
 
-  Array.from(files).forEach((file) => {
+  files.forEach((file) => {
     formData.append(fieldName, file);
   });
+}
+
+function formatDuration(value: string, unit: DurationUnit) {
+  const normalizedValue = value.trim();
+  const normalizedUnit = unit === "hours" ? "hora" : "minuto";
+  const suffix = normalizedValue === "1" ? normalizedUnit : `${normalizedUnit}s`;
+
+  return `${normalizedValue} ${suffix}`;
+}
+
+function formatMoney(amount: string, unit: PriceUnit) {
+  const normalizedAmount = amount.trim();
+
+  if (unit === "PERCENT") {
+    return `${normalizedAmount}%`;
+  }
+
+  return `${unit === "USD" ? "US$" : "R$"} ${normalizedAmount}`;
 }
 
 export async function submitOnboardingForm(
@@ -26,29 +46,23 @@ export async function submitOnboardingForm(
   formData.append("addressNumber", data.addressNumber);
   formData.append("addressNeighborhood", data.addressNeighborhood);
   formData.append("schedulingModel", data.schedulingModel);
-  formData.append("cancellationFine", data.cancellationFine);
+  formData.append(
+    "cancellationFine",
+    formatMoney(data.cancellationFineAmount, data.cancellationFineUnit),
+  );
   formData.append("rescheduleDetails", data.rescheduleDetails);
-  formData.append("upfrontCost", data.upfrontCost);
+  formData.append("upfrontCost", formatMoney(data.upfrontCostAmount, data.upfrontCostUnit));
   formData.append("hasDomain", data.hasDomain);
-  formData.append("websiteUrl", data.websiteUrl);
-  formData.append("hostingProvider", data.hostingProvider);
+  formData.append("websiteUrl", data.hasDomain === "yes" ? data.websiteUrl : "");
+  formData.append("hostingProvider", data.hasDomain === "yes" ? data.hostingProvider : "");
   formData.append(
     "services",
     JSON.stringify(
-      data.services.map(({ name, duration, value }) => ({
+      data.services.map(({ name, professionalName, durationValue, durationUnit, valueAmount, valueUnit }) => ({
         name,
-        duration,
-        value,
-      })),
-    ),
-  );
-  formData.append(
-    "professionals",
-    JSON.stringify(
-      data.professionals.map(({ name, role, serviceConfig }) => ({
-        name,
-        role,
-        serviceConfig,
+        professionalName,
+        duration: formatDuration(durationValue, durationUnit),
+        value: formatMoney(valueAmount, valueUnit),
       })),
     ),
   );

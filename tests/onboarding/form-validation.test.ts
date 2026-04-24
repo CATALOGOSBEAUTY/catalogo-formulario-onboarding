@@ -13,13 +13,14 @@ function buildState(overrides: Partial<OnboardingFormState> = {}): OnboardingFor
     addressNumber: "1000",
     addressNeighborhood: "Bela Vista",
     services: [],
-    professionals: [],
     schedulingModel: "plataforma_completa",
-    cancellationFine: "R$ 50,00",
+    cancellationFineAmount: "50",
+    cancellationFineUnit: "BRL",
     rescheduleDetails: "Com 24h de antecedencia",
-    upfrontCost: "50% antecipado",
-    photosProcedures: null,
-    photosFacade: null,
+    upfrontCostAmount: "50",
+    upfrontCostUnit: "PERCENT",
+    photosProcedures: [],
+    photosFacade: [],
     hasDomain: "yes",
     websiteUrl: "https://empresa.com.br",
     hostingProvider: "Vercel",
@@ -28,33 +29,80 @@ function buildState(overrides: Partial<OnboardingFormState> = {}): OnboardingFor
 }
 
 describe("getStepValidationError", () => {
-  it("blocks leaving step 2 when no service or professional was added", () => {
+  it("blocks leaving step 2 when no linked service was added", () => {
     const error = getStepValidationError(2, buildState());
 
     expect(error).toBe("Adicione pelo menos um servico antes de continuar.");
   });
 
-  it("blocks leaving step 2 when a service entry is incomplete", () => {
+  it("blocks leaving step 2 when a linked service entry is incomplete", () => {
     const error = getStepValidationError(
       2,
       buildState({
-        services: [{ id: "1", name: "", duration: "45 min", value: "R$ 50,00" }],
-        professionals: [{ id: "2", name: "Joao", role: "Esteticista", serviceConfig: "Limpeza" }],
+        services: [
+          {
+            id: "1",
+            name: "",
+            professionalName: "Joao",
+            durationValue: "45",
+            durationUnit: "minutes",
+            valueAmount: "50",
+            valueUnit: "BRL",
+          },
+        ],
       }),
     );
 
     expect(error).toBe("Preencha todos os dados dos servicos antes de continuar.");
   });
 
-  it("allows leaving step 2 when services and professionals are complete", () => {
+  it("allows leaving step 2 when linked services are complete", () => {
     const error = getStepValidationError(
       2,
       buildState({
-        services: [{ id: "1", name: "Limpeza de pele", duration: "45 min", value: "R$ 50,00" }],
-        professionals: [{ id: "2", name: "Joao", role: "Esteticista", serviceConfig: "Limpeza" }],
+        services: [
+          {
+            id: "1",
+            name: "Limpeza de pele",
+            professionalName: "Joao",
+            durationValue: "45",
+            durationUnit: "minutes",
+            valueAmount: "50",
+            valueUnit: "BRL",
+          },
+        ],
       }),
     );
 
     expect(error).toBeNull();
+  });
+
+  it("allows step 4 without technological fields when the client selected no", () => {
+    const error = getStepValidationError(
+      4,
+      buildState({
+        hasDomain: "no",
+        websiteUrl: "",
+        hostingProvider: "",
+        photosProcedures: [new File(["a"], "procedures.jpg", { type: "image/jpeg" })],
+        photosFacade: [new File(["b"], "facade.jpg", { type: "image/jpeg" })],
+      }),
+    );
+
+    expect(error).toBeNull();
+  });
+
+  it("blocks step 4 when more than 10 images were selected", () => {
+    const files = Array.from({ length: 6 }, (_, index) => new File(["a"], `file-${index}.jpg`, { type: "image/jpeg" }));
+
+    const error = getStepValidationError(
+      4,
+      buildState({
+        photosProcedures: files,
+        photosFacade: files,
+      }),
+    );
+
+    expect(error).toBe("Envie no maximo 10 imagens no total antes de concluir.");
   });
 });

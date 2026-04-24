@@ -10,14 +10,9 @@ export interface OnboardingUploadedFile {
 
 export interface OnboardingServiceItemInput {
   name: string;
+  professionalName: string;
   duration: string;
   value: string;
-}
-
-export interface OnboardingProfessionalItemInput {
-  name: string;
-  role: string;
-  serviceConfig: string;
 }
 
 export interface OnboardingSubmissionInput {
@@ -37,7 +32,6 @@ export interface OnboardingSubmissionInput {
   websiteUrl: string;
   hostingProvider: string;
   services: OnboardingServiceItemInput[];
-  professionals: OnboardingProfessionalItemInput[];
   files: OnboardingUploadedFile[];
 }
 

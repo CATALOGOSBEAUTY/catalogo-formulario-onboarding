@@ -1,15 +1,15 @@
+export type DurationUnit = "minutes" | "hours";
+export type CurrencyUnit = "BRL" | "USD";
+export type PriceUnit = CurrencyUnit | "PERCENT";
+
 export interface ServiceItem {
   id: string;
   name: string;
-  duration: string;
-  value: string;
-}
-
-export interface ProfessionalItem {
-  id: string;
-  name: string;
-  role: string;
-  serviceConfig: string; // Associated service or details
+  professionalName: string;
+  durationValue: string;
+  durationUnit: DurationUnit;
+  valueAmount: string;
+  valueUnit: CurrencyUnit;
 }
 
 export interface OnboardingFormState {
@@ -25,17 +25,18 @@ export interface OnboardingFormState {
 
   // Services
   services: ServiceItem[];
-  professionals: ProfessionalItem[];
 
   // Config & Policies
   schedulingModel: string;
-  cancellationFine: string;
+  cancellationFineAmount: string;
+  cancellationFineUnit: PriceUnit;
   rescheduleDetails: string;
-  upfrontCost: string;
+  upfrontCostAmount: string;
+  upfrontCostUnit: PriceUnit;
 
   // Media
-  photosProcedures: FileList | null;
-  photosFacade: FileList | null;
+  photosProcedures: File[];
+  photosFacade: File[];
 
   // Tech
   hasDomain: "yes" | "no";

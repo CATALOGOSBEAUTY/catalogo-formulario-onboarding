@@ -21,15 +21,9 @@ const buildSubmission = (): OnboardingSubmissionInput => ({
   services: [
     {
       name: "Corte",
-      duration: "45 min",
+      professionalName: "Joao Souza",
+      duration: "45 minutos",
       value: "R$ 50,00",
-    },
-  ],
-  professionals: [
-    {
-      name: "Joao Souza",
-      role: "Barbeiro Senior",
-      serviceConfig: "Corte: R$ 50,00",
     },
   ],
   files: [
@@ -57,7 +51,7 @@ describe("formatOnboardingWhatsAppMessage", () => {
     expect(message).toContain("*Nova solicitacao de onboarding*");
     expect(message).toContain("Nome: Maria Silva");
     expect(message).toContain("1. Corte");
-    expect(message).toContain("Joao Souza - Barbeiro Senior");
+    expect(message).toContain("Profissional: Joao Souza");
     expect(message).toContain("Possui dominio proprio? Sim");
   });
 });

@@ -31,13 +31,34 @@ function buildSubmission(): OnboardingSubmissionInput {
     schedulingModel: "plataforma_completa",
     cancellationFine: "R$ 50,00",
     rescheduleDetails: "Com 24h de antecedencia",
-    upfrontCost: "50% antecipado",
+    upfrontCost: "50%",
     hasDomain: true,
     websiteUrl: "https://empresa.com.br",
     hostingProvider: "Vercel",
-    services: [{ name: "Corte", duration: "45 min", value: "R$ 50,00" }],
-    professionals: [{ name: "Joao", role: "Barbeiro", serviceConfig: "Corte" }],
-    files: [],
+    services: [
+      {
+        name: "Corte",
+        professionalName: "Joao",
+        duration: "45 minutos",
+        value: "R$ 50,00",
+      },
+    ],
+    files: [
+      {
+        category: "procedures",
+        originalName: "procedures.jpg",
+        mimeType: "image/jpeg",
+        size: 128,
+        buffer: Buffer.from("procedures"),
+      },
+      {
+        category: "facade",
+        originalName: "facade.jpg",
+        mimeType: "image/jpeg",
+        size: 128,
+        buffer: Buffer.from("facade"),
+      },
+    ],
   };
 }
 
@@ -83,7 +104,9 @@ describe("createOnboardingService", () => {
           ],
         }),
       )
-      .mockResolvedValueOnce(jsonResponse({ key: { id: "abc" } }));
+      .mockResolvedValueOnce(jsonResponse({ key: { id: "text-message" } }))
+      .mockResolvedValueOnce(jsonResponse({ key: { id: "media-1" } }))
+      .mockResolvedValueOnce(jsonResponse({ key: { id: "media-2" } }));
 
     const service = createOnboardingService({
       env,
@@ -93,11 +116,14 @@ describe("createOnboardingService", () => {
 
     await service.submit(buildSubmission());
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
 
     const requestInit = fetchMock.mock.calls[1]?.[1];
     const body = JSON.parse(String(requestInit?.body));
 
     expect(body.number).toBe("557182589134");
+
+    expect(String(fetchMock.mock.calls[2]?.[0])).toContain("/message/sendMedia/catalogo-onboarding");
+    expect(String(fetchMock.mock.calls[3]?.[0])).toContain("/message/sendMedia/catalogo-onboarding");
   });
 });

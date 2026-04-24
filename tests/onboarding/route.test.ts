@@ -26,12 +26,21 @@ describe("POST /api/onboarding-submissions", () => {
       .field("schedulingModel", "plataforma_completa")
       .field("cancellationFine", "R$ 50,00")
       .field("rescheduleDetails", "Com 24h de antecedencia")
-      .field("upfrontCost", "50% antecipado")
+      .field("upfrontCost", "50%")
       .field("hasDomain", "yes")
       .field("websiteUrl", "https://empresa.com.br")
       .field("hostingProvider", "Vercel")
-      .field("services", JSON.stringify([{ name: "Corte", duration: "45 min", value: "R$ 50,00" }]))
-      .field("professionals", JSON.stringify([{ name: "Joao", role: "Barbeiro", serviceConfig: "Corte" }]))
+      .field(
+        "services",
+        JSON.stringify([
+          {
+            name: "Corte",
+            professionalName: "Joao",
+            duration: "45 minutos",
+            value: "R$ 50,00",
+          },
+        ]),
+      )
       .attach("photosProcedures", Buffer.from("procedures"), "procedures.jpg")
       .attach("photosFacade", Buffer.from("facade"), "facade.jpg");
 

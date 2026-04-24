@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type {
   OnboardingFileCategory,
-  OnboardingProfessionalItemInput,
   OnboardingServiceItemInput,
   OnboardingSubmissionInput,
   ParsedOnboardingPayload,
@@ -9,14 +8,9 @@ import type {
 
 const serviceSchema = z.object({
   name: z.string().trim().min(1),
+  professionalName: z.string().trim().min(1),
   duration: z.string().trim().min(1),
   value: z.string().trim().min(1),
-});
-
-const professionalSchema = z.object({
-  name: z.string().trim().min(1),
-  role: z.string().trim().min(1),
-  serviceConfig: z.string().trim().min(1),
 });
 
 const fileSchema = z.object({
@@ -41,11 +35,17 @@ const onboardingSchema = z.object({
   rescheduleDetails: z.string().trim().min(1),
   upfrontCost: z.string().trim().min(1),
   hasDomain: z.boolean(),
-  websiteUrl: z.string().trim().min(1),
-  hostingProvider: z.string().trim().min(1),
+  websiteUrl: z.string().trim(),
+  hostingProvider: z.string().trim(),
   services: z.array(serviceSchema).min(1),
-  professionals: z.array(professionalSchema).min(1),
   files: z.array(fileSchema).superRefine((files, ctx) => {
+    if (files.length > 10) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Envie no maximo 10 imagens no total.",
+      });
+    }
+
     const categories = new Set(files.map((file) => file.category));
     if (!categories.has("procedures")) {
       ctx.addIssue({
@@ -61,6 +61,14 @@ const onboardingSchema = z.object({
       });
     }
   }),
+}).superRefine((payload, ctx) => {
+  if (payload.hasDomain && (!payload.websiteUrl || !payload.hostingProvider)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Dados da area tecnologica obrigatorios para clientes com site ou dominio.",
+      path: ["websiteUrl"],
+    });
+  }
 });
 
 function parseJsonArray<T>(value: unknown, itemParser: (item: unknown) => T): T[] {
@@ -75,10 +83,6 @@ function parseJsonArray<T>(value: unknown, itemParser: (item: unknown) => T): T[
 
 function parseServiceItem(value: unknown): OnboardingServiceItemInput {
   return serviceSchema.parse(value) as OnboardingServiceItemInput;
-}
-
-function parseProfessionalItem(value: unknown): OnboardingProfessionalItemInput {
-  return professionalSchema.parse(value) as OnboardingProfessionalItemInput;
 }
 
 function parseBooleanFlag(value: unknown) {
@@ -106,7 +110,6 @@ export function parseOnboardingRequestPayload(payload: ParsedOnboardingPayload):
       websiteUrl: payload.body.websiteUrl,
       hostingProvider: payload.body.hostingProvider,
       services: parseJsonArray(payload.body.services, parseServiceItem),
-      professionals: parseJsonArray(payload.body.professionals, parseProfessionalItem),
       files: payload.files,
     };
 

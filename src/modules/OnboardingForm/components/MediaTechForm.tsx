@@ -11,6 +11,8 @@ interface Props {
 }
 
 export function MediaTechForm({ data, updateData }: Props) {
+  const totalImages = data.photosProcedures.length + data.photosFacade.length;
+
   return (
     <Card className="mx-auto w-full max-w-3xl">
       <CardHeader>
@@ -38,10 +40,15 @@ export function MediaTechForm({ data, updateData }: Props) {
               type="file"
               multiple
               accept="image/*"
-              onChange={(e) => updateData({ photosProcedures: e.target.files })}
+              onChange={(e) =>
+                updateData({ photosProcedures: Array.from(e.target.files || []) })
+              }
               className="file:bg-[rgba(37,136,245,0.1)] file:text-[#3640D7] hover:file:bg-[rgba(77,88,246,0.14)]"
               required
             />
+            <p className="text-xs text-slate-500">
+              Envie imagens dos procedimentos. Total atual: {data.photosProcedures.length}.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -53,10 +60,15 @@ export function MediaTechForm({ data, updateData }: Props) {
               type="file"
               multiple
               accept="image/*"
-              onChange={(e) => updateData({ photosFacade: e.target.files })}
+              onChange={(e) =>
+                updateData({ photosFacade: Array.from(e.target.files || []) })
+              }
               className="file:bg-[rgba(37,136,245,0.1)] file:text-[#3640D7] hover:file:bg-[rgba(77,88,246,0.14)]"
               required
             />
+            <p className="text-xs text-slate-500">
+              Voce pode enviar ate 10 imagens no total entre os dois campos. Total atual: {totalImages}.
+            </p>
           </div>
         </div>
 
@@ -72,7 +84,13 @@ export function MediaTechForm({ data, updateData }: Props) {
             <Select
               id="hasDomain"
               value={data.hasDomain}
-              onChange={(e) => updateData({ hasDomain: e.target.value as "yes" | "no" })}
+              onChange={(e) =>
+                updateData(
+                  e.target.value === "yes"
+                    ? { hasDomain: "yes" }
+                    : { hasDomain: "no", websiteUrl: "", hostingProvider: "" },
+                )
+              }
               required
             >
               <option value="no">Nao</option>
@@ -89,7 +107,8 @@ export function MediaTechForm({ data, updateData }: Props) {
               placeholder="https://www.seusite.com.br"
               value={data.websiteUrl}
               onChange={(e) => updateData({ websiteUrl: e.target.value })}
-              required
+              disabled={data.hasDomain === "no"}
+              required={data.hasDomain === "yes"}
             />
           </div>
 
@@ -102,7 +121,8 @@ export function MediaTechForm({ data, updateData }: Props) {
               placeholder="Ex: HostGator, Locaweb, Vercel..."
               value={data.hostingProvider}
               onChange={(e) => updateData({ hostingProvider: e.target.value })}
-              required
+              disabled={data.hasDomain === "no"}
+              required={data.hasDomain === "yes"}
             />
           </div>
         </div>

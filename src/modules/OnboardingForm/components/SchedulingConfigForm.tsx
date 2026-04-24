@@ -4,7 +4,7 @@ import { Input } from "@/src/components/ui/Input";
 import { Label } from "@/src/components/ui/Label";
 import { Select } from "@/src/components/ui/Select";
 import { Textarea } from "@/src/components/ui/Textarea";
-import { OnboardingFormState } from "../types";
+import { OnboardingFormState, PriceUnit } from "../types";
 
 interface Props {
   data: OnboardingFormState;
@@ -12,6 +12,12 @@ interface Props {
 }
 
 export function SchedulingConfigForm({ data, updateData }: Props) {
+  const moneyOptions: { value: PriceUnit; label: string }[] = [
+    { value: "BRL", label: "Real" },
+    { value: "USD", label: "Dolar" },
+    { value: "PERCENT", label: "%" },
+  ];
+
   return (
     <Card className="mx-auto w-full max-w-3xl">
       <CardHeader>
@@ -55,13 +61,28 @@ export function SchedulingConfigForm({ data, updateData }: Props) {
             <Label htmlFor="cancellationFine" className="flex items-center gap-1">
               Valor da multa para cancelamento <span className="text-red-500">*</span>
             </Label>
-            <Input
-              id="cancellationFine"
-              placeholder="Ex: R$ 50,00 ou 20%"
-              value={data.cancellationFine}
-              onChange={(e) => updateData({ cancellationFine: e.target.value })}
-              required
-            />
+            <div className="grid grid-cols-[minmax(0,1fr)_150px] gap-3">
+              <Input
+                id="cancellationFine"
+                placeholder="Ex: 50,00"
+                inputMode="decimal"
+                value={data.cancellationFineAmount}
+                onChange={(e) => updateData({ cancellationFineAmount: e.target.value })}
+                required
+              />
+              <Select
+                value={data.cancellationFineUnit}
+                onChange={(e) =>
+                  updateData({ cancellationFineUnit: e.target.value as PriceUnit })
+                }
+              >
+                {moneyOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -81,13 +102,28 @@ export function SchedulingConfigForm({ data, updateData }: Props) {
             <Label htmlFor="upfrontCost" className="flex items-center gap-1">
               Existe valor antecipado para agendar? <span className="text-red-500">*</span>
             </Label>
-            <Input
-              id="upfrontCost"
-              placeholder="Ex: Pagamento adiantado de 50%"
-              value={data.upfrontCost}
-              onChange={(e) => updateData({ upfrontCost: e.target.value })}
-              required
-            />
+            <div className="grid grid-cols-[minmax(0,1fr)_150px] gap-3">
+              <Input
+                id="upfrontCost"
+                placeholder="Ex: 50"
+                inputMode="decimal"
+                value={data.upfrontCostAmount}
+                onChange={(e) => updateData({ upfrontCostAmount: e.target.value })}
+                required
+              />
+              <Select
+                value={data.upfrontCostUnit}
+                onChange={(e) =>
+                  updateData({ upfrontCostUnit: e.target.value as PriceUnit })
+                }
+              >
+                {moneyOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
           </div>
         </div>
       </CardContent>

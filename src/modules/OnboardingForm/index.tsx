@@ -20,13 +20,14 @@ const INITIAL_STATE: OnboardingFormState = {
   addressNumber: "",
   addressNeighborhood: "",
   services: [],
-  professionals: [],
   schedulingModel: "",
-  cancellationFine: "",
+  cancellationFineAmount: "",
+  cancellationFineUnit: "BRL",
   rescheduleDetails: "",
-  upfrontCost: "",
-  photosProcedures: null,
-  photosFacade: null,
+  upfrontCostAmount: "",
+  upfrontCostUnit: "PERCENT",
+  photosProcedures: [],
+  photosFacade: [],
   hasDomain: "no",
   websiteUrl: "",
   hostingProvider: "",
@@ -63,23 +64,6 @@ export function OnboardingForm() {
 
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
-      return;
-    }
-
-    if (data.services.length === 0) {
-      setSubmitError("Adicione pelo menos um servico antes de enviar.");
-      setCurrentStep(2);
-      return;
-    }
-
-    if (data.professionals.length === 0) {
-      setSubmitError("Adicione pelo menos um profissional antes de enviar.");
-      setCurrentStep(2);
-      return;
-    }
-
-    if (!data.photosProcedures?.length || !data.photosFacade?.length) {
-      setSubmitError("Envie as fotos obrigatorias antes de concluir.");
       return;
     }
 
