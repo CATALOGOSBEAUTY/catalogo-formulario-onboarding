@@ -38,6 +38,8 @@ export function OnboardingForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState(0);
+  const [submitStage, setSubmitStage] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitWarning, setSubmitWarning] = useState("");
   const totalSteps = 4;
@@ -68,9 +70,20 @@ export function OnboardingForm() {
     }
 
     setIsSubmitting(true);
+    setSubmitProgress(0);
+    setSubmitStage("Preparando envio das imagens...");
     setSubmitWarning("");
 
-    submitOnboardingForm(data)
+    submitOnboardingForm(data, {
+      onProgress: (progress) => {
+        setSubmitProgress(progress);
+        setSubmitStage(
+          progress < 100
+            ? `Carregando imagens... ${progress}%`
+            : "Processando envio final...",
+        );
+      },
+    })
       .then((response) => {
         setSubmitWarning(response.warning || "");
         setIsSubmitted(true);
@@ -82,6 +95,9 @@ export function OnboardingForm() {
       })
       .finally(() => {
         setIsSubmitting(false);
+        if (!isSubmitted) {
+          setSubmitStage("");
+        }
       });
   };
 
@@ -217,6 +233,26 @@ export function OnboardingForm() {
           </div>
         ) : null}
 
+        {isSubmitting ? (
+          <div className="space-y-3 rounded-2xl border border-[rgba(77,88,246,0.14)] bg-white/75 px-4 py-4 shadow-[0_12px_32px_rgba(42,61,130,0.05)]">
+            <div className="flex items-center justify-between gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#4D58F6]">
+              <span>{submitStage || "Enviando formulario..."}</span>
+              <span>{submitProgress}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-[rgba(77,88,246,0.12)]">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${submitProgress}%` }}
+                transition={{ ease: "easeInOut", duration: 0.25 }}
+                className="h-full bg-[linear-gradient(90deg,#2388F5_0%,#8E22FF_100%)]"
+              />
+            </div>
+            <p className="text-xs text-slate-500">
+              As imagens estao sendo carregadas e enviadas junto com o cadastro.
+            </p>
+          </div>
+        ) : null}
+
         <div className="flex items-center justify-between pt-4">
           <Button
             type="button"
@@ -232,7 +268,7 @@ export function OnboardingForm() {
             <Button type="submit">Proximo passo</Button>
           ) : (
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Enviando..." : "Enviar solicitacao de cadastro"}
+              {isSubmitting ? submitStage || "Enviando..." : "Enviar solicitacao de cadastro"}
             </Button>
           )}
         </div>

@@ -10,6 +10,45 @@ interface Props {
   updateData: (fields: Partial<OnboardingFormState>) => void;
 }
 
+function formatFileSize(size: number) {
+  if (size < 1024 * 1024) {
+    return `${Math.round(size / 1024)} KB`;
+  }
+
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function SelectedFilesList({
+  title,
+  files,
+}: {
+  title: string;
+  files: File[];
+}) {
+  if (files.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-2xl border border-[rgba(77,88,246,0.14)] bg-white/80 p-4 shadow-[0_10px_30px_rgba(42,61,130,0.05)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#4D58F6]">
+        {title}
+      </p>
+      <div className="mt-3 space-y-2">
+        {files.map((file) => (
+          <div
+            key={`${file.name}-${file.size}-${file.lastModified}`}
+            className="flex items-center justify-between rounded-xl border border-[rgba(77,88,246,0.08)] bg-[rgba(246,248,255,0.86)] px-3 py-2 text-xs text-slate-600"
+          >
+            <span className="max-w-[75%] truncate font-medium text-slate-700">{file.name}</span>
+            <span>{formatFileSize(file.size)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function MediaTechForm({ data, updateData }: Props) {
   const totalImages = data.photosProcedures.length + data.photosFacade.length;
 
@@ -49,6 +88,10 @@ export function MediaTechForm({ data, updateData }: Props) {
             <p className="text-xs text-slate-500">
               Envie imagens dos procedimentos. Total atual: {data.photosProcedures.length}.
             </p>
+            <SelectedFilesList
+              title="Imagens dos procedimentos prontas para envio"
+              files={data.photosProcedures}
+            />
           </div>
 
           <div className="space-y-2">
@@ -69,6 +112,10 @@ export function MediaTechForm({ data, updateData }: Props) {
             <p className="text-xs text-slate-500">
               Voce pode enviar ate 10 imagens no total entre os dois campos. Total atual: {totalImages}.
             </p>
+            <SelectedFilesList
+              title="Imagens da fachada prontas para envio"
+              files={data.photosFacade}
+            />
           </div>
         </div>
 

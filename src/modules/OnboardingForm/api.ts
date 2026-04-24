@@ -5,6 +5,11 @@ import type {
   SubmitOnboardingResponse,
 } from "./types";
 
+interface SubmitOnboardingFormOptions {
+  onProgress?: (progress: number) => void;
+  xhrFactory?: () => XMLHttpRequest;
+}
+
 function appendFiles(formData: FormData, fieldName: string, files: File[]) {
   if (files.length === 0) {
     return;
@@ -35,7 +40,9 @@ function formatMoney(amount: string, unit: PriceUnit) {
 
 export async function submitOnboardingForm(
   data: OnboardingFormState,
+  options: SubmitOnboardingFormOptions = {},
 ): Promise<SubmitOnboardingResponse> {
+  const { onProgress, xhrFactory = () => new XMLHttpRequest() } = options;
   const formData = new FormData();
   formData.append("fullName", data.fullName);
   formData.append("cpf", data.cpf);
@@ -70,22 +77,48 @@ export async function submitOnboardingForm(
   appendFiles(formData, "photosProcedures", data.photosProcedures);
   appendFiles(formData, "photosFacade", data.photosFacade);
 
-  const response = await fetch("/api/onboarding-submissions", {
-    method: "POST",
-    body: formData,
+  return new Promise<SubmitOnboardingResponse>((resolve, reject) => {
+    const xhr = xhrFactory();
+
+    xhr.open("POST", "/api/onboarding-submissions");
+
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable || !onProgress) {
+        return;
+      }
+
+      onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+
+    xhr.onerror = () => {
+      reject(new Error("Falha ao enviar formulario."));
+    };
+
+    xhr.onload = () => {
+      onProgress?.(100);
+
+      try {
+        const payload = JSON.parse(xhr.responseText || "{}") as
+          | SubmitOnboardingResponse
+          | { error?: string };
+
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject(
+            new Error(
+              typeof payload === "object" && payload && "error" in payload
+                ? payload.error || "Falha ao enviar formulario."
+                : "Falha ao enviar formulario.",
+            ),
+          );
+          return;
+        }
+
+        resolve(payload as SubmitOnboardingResponse);
+      } catch {
+        reject(new Error("Falha ao interpretar resposta do formulario."));
+      }
+    };
+
+    xhr.send(formData);
   });
-
-  const payload = (await response.json()) as
-    | SubmitOnboardingResponse
-    | { error?: string };
-
-  if (!response.ok) {
-    throw new Error(
-      typeof payload === "object" && payload && "error" in payload
-        ? payload.error || "Falha ao enviar formulario."
-        : "Falha ao enviar formulario.",
-    );
-  }
-
-  return payload as SubmitOnboardingResponse;
 }

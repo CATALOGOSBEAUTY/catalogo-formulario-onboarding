@@ -215,29 +215,36 @@ async function sendWhatsAppMediaMessages(
   destinationNumber: string,
   files: OnboardingUploadedFile[],
 ) {
-  for (let index = 0; index < files.length; index += 1) {
-    const file = files[index];
+  const maxConcurrentUploads = 3;
 
-    const response = await fetchImpl(
-      `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendMedia/${env.EVOLUTION_INSTANCE_NAME}`,
-      {
-        method: "POST",
-        headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
-        body: JSON.stringify({
-          number: destinationNumber,
-          mediatype: getMediaType(file.mimeType),
-          mimetype: file.mimeType,
-          caption: buildMediaCaption(file, index),
-          media: file.buffer.toString("base64"),
-          fileName: file.originalName,
-        }),
-      },
+  for (let batchStart = 0; batchStart < files.length; batchStart += maxConcurrentUploads) {
+    const batch = files.slice(batchStart, batchStart + maxConcurrentUploads);
+
+    await Promise.all(
+      batch.map(async (file, batchIndex) => {
+        const fileIndex = batchStart + batchIndex;
+        const response = await fetchImpl(
+          `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendMedia/${env.EVOLUTION_INSTANCE_NAME}`,
+          {
+            method: "POST",
+            headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
+            body: JSON.stringify({
+              number: destinationNumber,
+              mediatype: getMediaType(file.mimeType),
+              mimetype: file.mimeType,
+              caption: buildMediaCaption(file, fileIndex),
+              media: file.buffer.toString("base64"),
+              fileName: file.originalName,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Falha ao enviar midia via Evolution: ${errorText}`);
+        }
+      }),
     );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Falha ao enviar midia via Evolution: ${errorText}`);
-    }
   }
 }
 
