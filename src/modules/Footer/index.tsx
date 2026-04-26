@@ -11,7 +11,7 @@ export function Footer() {
             wordmarkClassName="text-[1.7rem]"
           />
           <p className="max-w-md text-[11px] text-slate-500">
-            (c) {new Date().getFullYear()} Sistematize. Estrutura digital para catalogos, onboarding e operacao comercial.
+            (c) {new Date().getFullYear()} Sistematize. Estética de alto padrão para clientes que buscam exclusividade, cuidado impecável e uma experiência premium em cada detalhe.
           </p>
         </div>
         <div className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">

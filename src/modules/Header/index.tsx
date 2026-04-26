@@ -9,11 +9,11 @@ export function Header() {
             className="gap-3 sm:gap-4"
             iconClassName="h-11 w-11 sm:h-12 sm:w-12"
             wordmarkClassName="text-[2rem] sm:text-[2.55rem]"
-            subtitle="Catalogo e onboarding"
+            subtitle="Estética de alto padrão para clientes que buscam exclusividade, cuidado impecável e uma experiência premium em cada detalhe."
           />
         </div>
         <div className="hidden rounded-full border border-[rgba(77,88,246,0.24)] bg-[rgba(247,249,255,0.94)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-700 shadow-[0_18px_45px_rgba(37,136,245,0.12)] md:block">
-          Operacao digital estruturada
+          Experiencia digital sofisticada
         </div>
       </div>
       <div className="h-px w-full bg-gradient-to-r from-transparent via-[rgba(77,88,246,0.48)] to-transparent" />

@@ -75,7 +75,7 @@ export function SistematizeLogo({
           sistematize
         </span>
         {subtitle ? (
-          <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+          <span className="mt-1 block max-w-[min(72vw,34rem)] text-[9px] font-semibold uppercase leading-relaxed tracking-[0.14em] text-slate-500 sm:text-[10px]">
             {subtitle}
           </span>
         ) : null}

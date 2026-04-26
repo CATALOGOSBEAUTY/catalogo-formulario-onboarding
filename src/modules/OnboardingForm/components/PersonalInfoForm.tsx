@@ -56,7 +56,7 @@ export function PersonalInfoForm({ data, updateData }: Props) {
           IDENTIFICACAO BASICA
         </CardTitle>
         <CardDescription>
-          Precisamos dos seus dados basicos para registrar a solicitacao do seu catalogo.
+          Precisamos dos seus dados basicos para estruturar sua experiencia digital na area da estetica.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

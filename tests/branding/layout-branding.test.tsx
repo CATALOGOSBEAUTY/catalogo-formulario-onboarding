@@ -10,6 +10,9 @@ describe("layout branding", () => {
     const combinedMarkup = `${headerMarkup}${footerMarkup}`.toLowerCase();
 
     expect(combinedMarkup).toContain("sistematize");
+    expect(combinedMarkup).toContain("estética de alto padrão");
+    expect(combinedMarkup).toContain("experiência premium em cada detalhe");
+    expect(combinedMarkup).not.toContain("catalogo");
     expect(combinedMarkup).not.toContain("beautysync");
     expect(combinedMarkup).toContain("lgpd");
   });

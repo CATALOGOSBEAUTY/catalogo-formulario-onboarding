@@ -1,6 +1,6 @@
-# Catalogo e Formulario de Onboarding
+# Sistematize Estetica Premium
 
-Landing page com wizard de onboarding para captacao de dados operacionais, servicos, equipe, midia e tecnologia. O fluxo foi reestruturado para producao com backend Node.js, persistencia no Supabase e envio automatico via Evolution API.
+Landing page com wizard de onboarding para clinicas de estetica de alto padrao, captacao de dados operacionais, servicos, equipe, midia e tecnologia. O fluxo foi reestruturado para producao com backend Node.js, persistencia no Supabase e envio automatico via Evolution API.
 
 ## Arquitetura
 
