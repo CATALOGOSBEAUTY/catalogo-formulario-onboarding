@@ -13,20 +13,35 @@ interface Props {
   updateData: (fields: Partial<OnboardingFormState>) => void;
 }
 
+function createEmptyService(): ServiceItem {
+  const id =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  return {
+    id,
+    name: "",
+    professionalName: "",
+    durationValue: "",
+    durationUnit: "minutes",
+    valueAmount: "",
+    valueUnit: "BRL",
+  };
+}
+
 export function BusinessServicesForm({ data, updateData }: Props) {
   const addService = () => {
     updateData({
+      services: [...data.services, createEmptyService()],
+    });
+  };
+
+  const addServiceBatch = () => {
+    updateData({
       services: [
         ...data.services,
-        {
-          id: Date.now().toString(),
-          name: "",
-          professionalName: "",
-          durationValue: "",
-          durationUnit: "minutes",
-          valueAmount: "",
-          valueUnit: "BRL",
-        },
+        ...Array.from({ length: 10 }, () => createEmptyService()),
       ],
     });
   };
@@ -57,11 +72,21 @@ export function BusinessServicesForm({ data, updateData }: Props) {
 
       <CardContent className="space-y-8">
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-slate-800">Seus servicos</h4>
-            <Button type="button" variant="outline" size="sm" onClick={addService}>
-              <Plus className="mr-2 h-4 w-4" /> Adicionar servico
-            </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h4 className="text-sm font-semibold text-slate-800">Seus servicos</h4>
+              <p className="mt-1 text-xs text-slate-500">
+                {data.services.length} servicos adicionados. O formulario aceita mais de 100 servicos.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={addServiceBatch}>
+                <Plus className="mr-2 h-4 w-4" /> Adicionar 10
+              </Button>
+              <Button type="button" variant="outline" size="sm" onClick={addService}>
+                <Plus className="mr-2 h-4 w-4" /> Adicionar servico
+              </Button>
+            </div>
           </div>
 
           <AnimatePresence mode="popLayout">
@@ -201,6 +226,85 @@ export function BusinessServicesForm({ data, updateData }: Props) {
               ))}
             </div>
           </AnimatePresence>
+        </div>
+
+        <div className="space-y-5 border-t border-[rgba(77,88,246,0.12)] pt-6">
+          <div>
+            <h4 className="text-sm font-semibold text-slate-800">Fluxo operacional</h4>
+            <p className="mt-1 text-xs text-slate-500">
+              Informe o volume de agendamentos e o nivel atual de cancelamentos e reagendamentos.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="space-y-1">
+              <Label htmlFor="appointmentFlow" className="flex items-center gap-1 text-xs">
+                Fluxo de pessoas que agendam <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                id="appointmentFlow"
+                value={data.appointmentFlow}
+                onChange={(e) => updateData({ appointmentFlow: e.target.value })}
+                required
+              >
+                <option value="" disabled>
+                  Selecione...
+                </option>
+                <option value="Baixo - ate 10 agendamentos por dia">
+                  Baixo - ate 10 por dia
+                </option>
+                <option value="Medio - 11 a 30 agendamentos por dia">
+                  Medio - 11 a 30 por dia
+                </option>
+                <option value="Alto - 31 a 80 agendamentos por dia">
+                  Alto - 31 a 80 por dia
+                </option>
+                <option value="Muito alto - mais de 80 agendamentos por dia">
+                  Muito alto - mais de 80 por dia
+                </option>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="cancellationLevel" className="flex items-center gap-1 text-xs">
+                Nivel de cancelamento <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                id="cancellationLevel"
+                value={data.cancellationLevel}
+                onChange={(e) => updateData({ cancellationLevel: e.target.value })}
+                required
+              >
+                <option value="" disabled>
+                  Selecione...
+                </option>
+                <option value="Baixo">Baixo</option>
+                <option value="Medio">Medio</option>
+                <option value="Alto">Alto</option>
+                <option value="Critico">Critico</option>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="rescheduleLevel" className="flex items-center gap-1 text-xs">
+                Nivel de reagendamento <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                id="rescheduleLevel"
+                value={data.rescheduleLevel}
+                onChange={(e) => updateData({ rescheduleLevel: e.target.value })}
+                required
+              >
+                <option value="" disabled>
+                  Selecione...
+                </option>
+                <option value="Baixo">Baixo</option>
+                <option value="Medio">Medio</option>
+                <option value="Alto">Alto</option>
+                <option value="Critico">Critico</option>
+              </Select>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -25,6 +25,9 @@ export interface OnboardingFormState {
 
   // Services
   services: ServiceItem[];
+  appointmentFlow: string;
+  cancellationLevel: string;
+  rescheduleLevel: string;
 
   // Config & Policies
   schedulingModel: string;

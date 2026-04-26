@@ -185,6 +185,10 @@ function deriveProfessionalsFromServices(input: OnboardingSubmissionInput) {
   }));
 }
 
+function appendContext(value: string, label: string, context: string) {
+  return `${value}\n${label}: ${context}`;
+}
+
 async function sendWhatsAppTextMessage(
   env: AppEnv,
   fetchImpl: typeof fetch,
@@ -268,9 +272,21 @@ export function createOnboardingService({
         address_street: input.addressStreet,
         address_number: input.addressNumber,
         address_neighborhood: input.addressNeighborhood,
-        scheduling_model: input.schedulingModel,
-        cancellation_fine: input.cancellationFine,
-        reschedule_details: input.rescheduleDetails,
+        scheduling_model: appendContext(
+          input.schedulingModel,
+          "Fluxo de pessoas que agendam",
+          input.appointmentFlow,
+        ),
+        cancellation_fine: appendContext(
+          input.cancellationFine,
+          "Nivel de cancelamento",
+          input.cancellationLevel,
+        ),
+        reschedule_details: appendContext(
+          input.rescheduleDetails,
+          "Nivel de reagendamento",
+          input.rescheduleLevel,
+        ),
         upfront_cost: input.upfrontCost,
         has_domain: input.hasDomain,
         website_url: input.websiteUrl,

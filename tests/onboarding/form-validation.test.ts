@@ -13,6 +13,9 @@ function buildState(overrides: Partial<OnboardingFormState> = {}): OnboardingFor
     addressNumber: "1000",
     addressNeighborhood: "Bela Vista",
     services: [],
+    appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
+    cancellationLevel: "Medio",
+    rescheduleLevel: "Alto",
     schedulingModel: "plataforma_completa",
     cancellationFineAmount: "50",
     cancellationFineUnit: "BRL",
@@ -75,6 +78,46 @@ describe("getStepValidationError", () => {
     );
 
     expect(error).toBeNull();
+  });
+
+  it("allows leaving step 2 with more than 100 complete services", () => {
+    const services = Array.from({ length: 101 }, (_, index) => ({
+      id: String(index),
+      name: `Servico ${index + 1}`,
+      professionalName: `Profissional ${index + 1}`,
+      durationValue: "45",
+      durationUnit: "minutes" as const,
+      valueAmount: "150",
+      valueUnit: "BRL" as const,
+    }));
+
+    const error = getStepValidationError(2, buildState({ services }));
+
+    expect(error).toBeNull();
+  });
+
+  it("blocks leaving step 2 when operational flow fields are missing", () => {
+    const error = getStepValidationError(
+      2,
+      buildState({
+        appointmentFlow: "",
+        services: [
+          {
+            id: "1",
+            name: "Limpeza de pele",
+            professionalName: "Joao",
+            durationValue: "45",
+            durationUnit: "minutes",
+            valueAmount: "50",
+            valueUnit: "BRL",
+          },
+        ],
+      }),
+    );
+
+    expect(error).toBe(
+      "Preencha o fluxo de agendamentos, cancelamentos e reagendamentos antes de continuar.",
+    );
   });
 
   it("allows step 4 without technological fields when the client selected no", () => {

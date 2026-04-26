@@ -11,6 +11,9 @@ const buildSubmission = (): OnboardingSubmissionInput => ({
   addressStreet: "Av. Paulista",
   addressNumber: "1000",
   addressNeighborhood: "Bela Vista",
+  appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
+  cancellationLevel: "Medio",
+  rescheduleLevel: "Alto",
   schedulingModel: "plataforma_completa",
   cancellationFine: "R$ 50,00",
   rescheduleDetails: "Reagendamento permitido com 24h de antecedencia.",
@@ -52,6 +55,9 @@ describe("formatOnboardingWhatsAppMessage", () => {
     expect(message).toContain("Nome: Maria Silva");
     expect(message).toContain("1. Corte");
     expect(message).toContain("Profissional: Joao Souza");
+    expect(message).toContain("Fluxo de pessoas que agendam: Alto - 31 a 80 agendamentos por dia");
+    expect(message).toContain("Nivel de cancelamento: Medio");
+    expect(message).toContain("Nivel de reagendamento: Alto");
     expect(message).toContain("Possui dominio proprio? Sim");
   });
 });

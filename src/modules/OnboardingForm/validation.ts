@@ -31,6 +31,14 @@ export function getStepValidationError(
       return "Preencha todos os dados dos servicos antes de continuar.";
     }
 
+    if (
+      isBlank(data.appointmentFlow) ||
+      isBlank(data.cancellationLevel) ||
+      isBlank(data.rescheduleLevel)
+    ) {
+      return "Preencha o fluxo de agendamentos, cancelamentos e reagendamentos antes de continuar.";
+    }
+
     return null;
   }
 
