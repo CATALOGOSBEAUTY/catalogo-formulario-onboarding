@@ -4,7 +4,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$RepoUrl,
   [string]$Branch = "main",
-  [string]$ServiceName = "catalogo-formulario-onboarding"
+  [string]$ServiceName = "sistematize"
 )
 
 if (-not $env:RENDER_API_KEY) {

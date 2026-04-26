@@ -13,7 +13,7 @@ function buildEnv(): AppEnv {
     SUPABASE_STORAGE_BUCKET: "onboarding-uploads",
     EVOLUTION_API_URL: "https://saasevolution.azurewebsites.net",
     EVOLUTION_API_KEY: "test-api-key",
-    EVOLUTION_INSTANCE_NAME: "catalogo-onboarding",
+    EVOLUTION_INSTANCE_NAME: "diaprao",
     MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
   };
 }
@@ -98,7 +98,7 @@ describe("createOnboardingService", () => {
         jsonResponse({
           value: [
             {
-              name: "catalogo-onboarding",
+              name: "diaprao",
               ownerJid: "557182589134@s.whatsapp.net",
             },
           ],
@@ -123,7 +123,7 @@ describe("createOnboardingService", () => {
 
     expect(body.number).toBe("557182589134");
 
-    expect(String(fetchMock.mock.calls[2]?.[0])).toContain("/message/sendMedia/catalogo-onboarding");
-    expect(String(fetchMock.mock.calls[3]?.[0])).toContain("/message/sendMedia/catalogo-onboarding");
+    expect(String(fetchMock.mock.calls[2]?.[0])).toContain("/message/sendMedia/diaprao");
+    expect(String(fetchMock.mock.calls[3]?.[0])).toContain("/message/sendMedia/diaprao");
   });
 });
