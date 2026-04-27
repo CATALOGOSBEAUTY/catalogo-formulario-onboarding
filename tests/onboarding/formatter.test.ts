@@ -55,16 +55,21 @@ describe("formatOnboardingWhatsAppMessage", () => {
   it("formats the full onboarding payload into a business message", () => {
     const message = formatOnboardingWhatsAppMessage(buildSubmission());
 
-    expect(message).toContain("*Nova solicitacao de onboarding*");
-    expect(message).toContain("Nome: Maria Silva");
-    expect(message).toContain("Cidade/UF: Sao Paulo - SP");
-    expect(message).toContain("1. Corte");
-    expect(message).toContain("Profissional: Joao Souza");
+    expect(message).toContain("*RELATORIO DE ONBOARDING - ESTETICA PREMIUM*");
+    expect(message).toContain("*1. IDENTIFICACAO*");
+    expect(message).toContain("- Nome completo: Maria Silva");
+    expect(message).toContain("*2. ENDERECO DO ESTABELECIMENTO*");
+    expect(message).toContain("- Cidade/UF: Sao Paulo - SP");
+    expect(message).toContain("*3. SERVICOS E EQUIPE*");
+    expect(message).toContain("*Servico 01*");
+    expect(message).toContain("- Profissional vinculado: Joao Souza");
     expect(message).toContain("Fluxo de pessoas que agendam: Alto - 31 a 80 agendamentos por dia");
     expect(message).toContain("Nivel de cancelamento: Medio");
     expect(message).toContain("Nivel de reagendamento: Alto");
     expect(message).toContain("Assessora virtual para WhatsApp: Sim");
     expect(message).toContain("Escopo da assessora: Todas as opcoes");
-    expect(message).toContain("Possui dominio proprio? Sim");
+    expect(message).toContain("*5. TECNOLOGIA E PRESENCA DIGITAL*");
+    expect(message).toContain("- Possui dominio proprio: Sim");
+    expect(message).toContain("*6. MIDIAS RECEBIDAS*");
   });
 });
