@@ -30,6 +30,8 @@ export function formatOnboardingWhatsAppMessage(input: OnboardingSubmissionInput
     `Nivel de cancelamento: ${input.cancellationLevel}`,
     `Nivel de reagendamento: ${input.rescheduleLevel}`,
     `Modelo: ${input.schedulingModel}`,
+    `Assessora virtual para WhatsApp: ${input.virtualAssistantEnabled ? "Sim" : "Nao"}`,
+    `Escopo da assessora: ${input.virtualAssistantEnabled ? input.virtualAssistantScope : "Nao solicitado"}`,
     `Multa de cancelamento: ${input.cancellationFine}`,
     `Reagendamento: ${input.rescheduleDetails}`,
     `Pagamento antecipado: ${input.upfrontCost}`,

@@ -26,6 +26,8 @@ const INITIAL_STATE: OnboardingFormState = {
   cancellationLevel: "",
   rescheduleLevel: "",
   schedulingModel: "",
+  virtualAssistantEnabled: "no",
+  virtualAssistantScope: "",
   cancellationFineAmount: "",
   cancellationFineUnit: "BRL",
   rescheduleDetails: "",

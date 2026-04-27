@@ -36,6 +36,8 @@ const onboardingSchema = z.object({
   cancellationLevel: z.string().trim().min(1),
   rescheduleLevel: z.string().trim().min(1),
   schedulingModel: z.string().trim().min(1),
+  virtualAssistantEnabled: z.boolean(),
+  virtualAssistantScope: z.string().trim(),
   cancellationFine: z.string().trim().min(1),
   rescheduleDetails: z.string().trim().min(1),
   upfrontCost: z.string().trim().min(1),
@@ -72,6 +74,14 @@ const onboardingSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: "Dados da area tecnologica obrigatorios para clientes com site ou dominio.",
       path: ["websiteUrl"],
+    });
+  }
+
+  if (payload.virtualAssistantEnabled && !payload.virtualAssistantScope) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Selecione o escopo da assessora virtual.",
+      path: ["virtualAssistantScope"],
     });
   }
 });
@@ -113,6 +123,8 @@ export function parseOnboardingRequestPayload(payload: ParsedOnboardingPayload):
       cancellationLevel: payload.body.cancellationLevel,
       rescheduleLevel: payload.body.rescheduleLevel,
       schedulingModel: payload.body.schedulingModel,
+      virtualAssistantEnabled: parseBooleanFlag(payload.body.virtualAssistantEnabled),
+      virtualAssistantScope: payload.body.virtualAssistantScope ?? "",
       cancellationFine: payload.body.cancellationFine,
       rescheduleDetails: payload.body.rescheduleDetails,
       upfrontCost: payload.body.upfrontCost,

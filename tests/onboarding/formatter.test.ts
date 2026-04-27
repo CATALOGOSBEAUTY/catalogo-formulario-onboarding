@@ -17,6 +17,8 @@ const buildSubmission = (): OnboardingSubmissionInput => ({
   cancellationLevel: "Medio",
   rescheduleLevel: "Alto",
   schedulingModel: "plataforma_completa",
+  virtualAssistantEnabled: true,
+  virtualAssistantScope: "Todas as opcoes",
   cancellationFine: "R$ 50,00",
   rescheduleDetails: "Reagendamento permitido com 24h de antecedencia.",
   upfrontCost: "50% no ato da reserva",
@@ -61,6 +63,8 @@ describe("formatOnboardingWhatsAppMessage", () => {
     expect(message).toContain("Fluxo de pessoas que agendam: Alto - 31 a 80 agendamentos por dia");
     expect(message).toContain("Nivel de cancelamento: Medio");
     expect(message).toContain("Nivel de reagendamento: Alto");
+    expect(message).toContain("Assessora virtual para WhatsApp: Sim");
+    expect(message).toContain("Escopo da assessora: Todas as opcoes");
     expect(message).toContain("Possui dominio proprio? Sim");
   });
 });

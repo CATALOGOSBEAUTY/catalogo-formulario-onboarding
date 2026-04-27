@@ -33,6 +33,8 @@ export interface OnboardingFormState {
 
   // Config & Policies
   schedulingModel: string;
+  virtualAssistantEnabled: "yes" | "no";
+  virtualAssistantScope: string;
   cancellationFineAmount: string;
   cancellationFineUnit: PriceUnit;
   rescheduleDetails: string;

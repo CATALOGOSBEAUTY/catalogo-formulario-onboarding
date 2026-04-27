@@ -30,6 +30,8 @@ export interface OnboardingSubmissionInput {
   cancellationLevel: string;
   rescheduleLevel: string;
   schedulingModel: string;
+  virtualAssistantEnabled: boolean;
+  virtualAssistantScope: string;
   cancellationFine: string;
   rescheduleDetails: string;
   upfrontCost: string;

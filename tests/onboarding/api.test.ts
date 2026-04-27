@@ -29,6 +29,8 @@ function buildState(): OnboardingFormState {
       },
     ],
     schedulingModel: "plataforma_completa",
+    virtualAssistantEnabled: "yes",
+    virtualAssistantScope: "Todas as opcoes",
     cancellationFineAmount: "50",
     cancellationFineUnit: "BRL",
     rescheduleDetails: "Com 24h de antecedencia",

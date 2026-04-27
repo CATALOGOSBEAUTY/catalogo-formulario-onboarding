@@ -19,6 +19,8 @@ describe("parseOnboardingRequestPayload", () => {
         cancellationLevel: "Medio",
         rescheduleLevel: "Alto",
         schedulingModel: "plataforma_completa",
+        virtualAssistantEnabled: "yes",
+        virtualAssistantScope: "Atendimento Inicial",
         cancellationFine: "R$ 50,00",
         rescheduleDetails: "Com 24h de antecedencia",
         upfrontCost: "50%",
@@ -54,6 +56,8 @@ describe("parseOnboardingRequestPayload", () => {
 
     expect(result.hasDomain).toBe(true);
     expect(result.appointmentFlow).toBe("Alto - 31 a 80 agendamentos por dia");
+    expect(result.virtualAssistantEnabled).toBe(true);
+    expect(result.virtualAssistantScope).toBe("Atendimento Inicial");
     expect(result.services).toHaveLength(1);
     expect(result.services[0]?.professionalName).toBe("Joao");
     expect(result.files).toHaveLength(2);
@@ -216,6 +220,61 @@ describe("parseOnboardingRequestPayload", () => {
           cancellationLevel: "Medio",
           rescheduleLevel: "Alto",
           schedulingModel: "plataforma_completa",
+          cancellationFine: "R$ 50,00",
+          rescheduleDetails: "Com 24h de antecedencia",
+          upfrontCost: "20%",
+          hasDomain: "yes",
+          websiteUrl: "https://empresa.com.br",
+          hostingProvider: "Vercel",
+          services: JSON.stringify([
+            {
+              name: "Corte",
+              professionalName: "Joao",
+              duration: "45 minutos",
+              value: "R$ 50,00",
+            },
+          ]),
+        },
+        files: [
+          {
+            category: "procedures",
+            originalName: "antes.jpg",
+            mimeType: "image/jpeg",
+            size: 2048,
+            buffer: Buffer.from("a"),
+          },
+          {
+            category: "facade",
+            originalName: "fachada.jpg",
+            mimeType: "image/jpeg",
+            size: 2048,
+            buffer: Buffer.from("b"),
+          },
+        ],
+      }),
+    ).toThrow("Dados do formulario invalidos");
+  });
+
+  it("rejects virtual assistant enabled without selected scope", () => {
+    expect(() =>
+      parseOnboardingRequestPayload({
+        body: {
+          fullName: "Maria Silva",
+          cpf: "123.456.789-00",
+          email: "maria@empresa.com",
+          commercialContact: "(11) 99999-9999",
+          addressZipcode: "01001-000",
+          addressStreet: "Av. Paulista",
+          addressNumber: "1000",
+          addressNeighborhood: "Bela Vista",
+          addressCity: "Sao Paulo",
+          addressState: "SP",
+          appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
+          cancellationLevel: "Medio",
+          rescheduleLevel: "Alto",
+          schedulingModel: "plataforma_completa",
+          virtualAssistantEnabled: "yes",
+          virtualAssistantScope: "",
           cancellationFine: "R$ 50,00",
           rescheduleDetails: "Com 24h de antecedencia",
           upfrontCost: "20%",

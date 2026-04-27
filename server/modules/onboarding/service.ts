@@ -273,9 +273,13 @@ export function createOnboardingService({
         address_number: input.addressNumber,
         address_neighborhood: input.addressNeighborhood,
         scheduling_model: appendContext(
-          input.schedulingModel,
-          "Fluxo de pessoas que agendam",
-          input.appointmentFlow,
+          appendContext(
+            input.schedulingModel,
+            "Fluxo de pessoas que agendam",
+            input.appointmentFlow,
+          ),
+          "Assessora virtual para WhatsApp",
+          input.virtualAssistantEnabled ? input.virtualAssistantScope : "Nao solicitada",
         ),
         cancellation_fine: appendContext(
           input.cancellationFine,

@@ -34,6 +34,54 @@ const schedulingOptions = [
   },
 ] as const;
 
+const virtualAssistantScopes = [
+  {
+    value: "Atendimento Inicial",
+    label: "Atendimento Inicial",
+    description: "Recebe a cliente no WhatsApp e orienta a conversa ate o agendamento.",
+  },
+  {
+    value: "Duvidas sobre Procedimentos",
+    label: "Duvidas sobre Procedimentos",
+    description: "Explica os procedimentos cadastrados antes de enviar o link de agendamento.",
+  },
+  {
+    value: "Agendamento Publico",
+    label: "Agendamento Publico",
+    description: "Envia o link para a cliente escolher procedimento, dia e horario.",
+  },
+  {
+    value: "Valores e Pacotes",
+    label: "Valores e Pacotes",
+    description: "Mostra os precos cadastrados e direciona a cliente para o agendamento.",
+  },
+  {
+    value: "Captacao de Clientes",
+    label: "Captacao de Clientes",
+    description: "Registra novos interessados na plataforma administrativa.",
+  },
+  {
+    value: "Lembretes Automaticos",
+    label: "Lembretes Automaticos",
+    description: "Envia lembretes sobre sessoes e horarios agendados.",
+  },
+  {
+    value: "Pos-atendimento",
+    label: "Pos-atendimento",
+    description: "Envia cuidados, pesquisa de satisfacao e convite de retorno para a cliente.",
+  },
+  {
+    value: "Atendente Humano",
+    label: "Atendente Humano",
+    description: "Encaminha para a equipe quando precisar de atendimento manual.",
+  },
+  {
+    value: "Todas as opcoes",
+    label: "Todas as opcoes",
+    description: "Ativa a assessora virtual em todas as etapas disponiveis do atendimento.",
+  },
+] as const;
+
 function SchedulingModelSelector({
   value,
   onChange,
@@ -141,6 +189,53 @@ export function SchedulingConfigForm({ data, updateData }: Props) {
             value={data.schedulingModel}
             onChange={(schedulingModel) => updateData({ schedulingModel })}
           />
+        </div>
+
+        <div className="space-y-4 border-t border-[rgba(77,88,246,0.12)] pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="virtualAssistantEnabled" className="flex items-center gap-1">
+              Assessora virtual para WhatsApp <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="virtualAssistantEnabled"
+              value={data.virtualAssistantEnabled}
+              onChange={(e) =>
+                updateData({
+                  virtualAssistantEnabled: e.target.value as "yes" | "no",
+                  virtualAssistantScope:
+                    e.target.value === "yes" ? data.virtualAssistantScope : "",
+                })
+              }
+              required
+            >
+              <option value="no">Nao</option>
+              <option value="yes">Sim</option>
+            </Select>
+            <p className="rounded-lg bg-[rgba(247,249,255,0.88)] px-3 py-2 text-xs leading-relaxed text-slate-500">
+              A assessora virtual pode conduzir o atendimento no WhatsApp conforme o escopo contratado. Os valores podem ser alterados de acordo com as funcoes escolhidas, volume de atendimento e regras da operacao.
+            </p>
+          </div>
+
+          {data.virtualAssistantEnabled === "yes" ? (
+            <div className="space-y-2">
+              <Label htmlFor="virtualAssistantScope" className="flex items-center gap-1">
+                Funcoes da assessora virtual <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                id="virtualAssistantScope"
+                value={data.virtualAssistantScope}
+                onChange={(e) => updateData({ virtualAssistantScope: e.target.value })}
+                required
+              >
+                <option value="">Selecione uma opcao...</option>
+                {virtualAssistantScopes.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label} - {option.description}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          ) : null}
         </div>
 
         <div className="space-y-4 border-t border-[rgba(77,88,246,0.12)] pt-4">

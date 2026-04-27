@@ -34,6 +34,8 @@ function buildSubmission(): OnboardingSubmissionInput {
     cancellationLevel: "Medio",
     rescheduleLevel: "Alto",
     schedulingModel: "plataforma_completa",
+    virtualAssistantEnabled: true,
+    virtualAssistantScope: "Todas as opcoes",
     cancellationFine: "R$ 50,00",
     rescheduleDetails: "Com 24h de antecedencia",
     upfrontCost: "50%",

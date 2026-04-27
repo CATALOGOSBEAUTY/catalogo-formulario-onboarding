@@ -58,6 +58,11 @@ export async function submitOnboardingForm(
   formData.append("cancellationLevel", data.cancellationLevel);
   formData.append("rescheduleLevel", data.rescheduleLevel);
   formData.append("schedulingModel", data.schedulingModel);
+  formData.append("virtualAssistantEnabled", data.virtualAssistantEnabled);
+  formData.append(
+    "virtualAssistantScope",
+    data.virtualAssistantEnabled === "yes" ? data.virtualAssistantScope : "",
+  );
   formData.append(
     "cancellationFine",
     formatMoney(data.cancellationFineAmount, data.cancellationFineUnit),

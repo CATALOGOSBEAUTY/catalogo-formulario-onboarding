@@ -19,6 +19,8 @@ function buildState(overrides: Partial<OnboardingFormState> = {}): OnboardingFor
     cancellationLevel: "Medio",
     rescheduleLevel: "Alto",
     schedulingModel: "plataforma_completa",
+    virtualAssistantEnabled: "no",
+    virtualAssistantScope: "",
     cancellationFineAmount: "50",
     cancellationFineUnit: "BRL",
     rescheduleDetails: "Com 24h de antecedencia",

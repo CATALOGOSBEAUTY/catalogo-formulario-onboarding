@@ -20,6 +20,8 @@ function buildState(schedulingModel: string): OnboardingFormState {
     cancellationLevel: "Medio",
     rescheduleLevel: "Alto",
     schedulingModel,
+    virtualAssistantEnabled: "no",
+    virtualAssistantScope: "",
     cancellationFineAmount: "50",
     cancellationFineUnit: "BRL",
     rescheduleDetails: "Com 24h de antecedencia",
@@ -62,5 +64,23 @@ describe("SchedulingConfigForm scheduling model help", () => {
     expect(markup).toContain(
       "Experiencia premium para alto volume",
     );
+  });
+
+  it("renders virtual assistant options and pricing note when selected", () => {
+    const markup = renderToStaticMarkup(
+      <SchedulingConfigForm
+        data={{
+          ...buildState("plataforma_completa"),
+          virtualAssistantEnabled: "yes",
+          virtualAssistantScope: "all",
+        }}
+        updateData={vi.fn()}
+      />,
+    );
+
+    expect(markup).toContain("Assessora virtual para WhatsApp");
+    expect(markup).toContain("Atendimento Inicial");
+    expect(markup).toContain("Todas as opcoes");
+    expect(markup).toContain("Os valores podem ser alterados");
   });
 });
