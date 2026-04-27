@@ -38,7 +38,7 @@ describe("SchedulingConfigForm scheduling model help", () => {
     );
 
     expect(markup).toContain(
-      "O agendamento e enviado para o WhatsApp do cliente da empresa para confirmacao.",
+      "Ideal para uma operacao enxuta e personalizada",
     );
   });
 
@@ -48,7 +48,7 @@ describe("SchedulingConfigForm scheduling model help", () => {
     );
 
     expect(markup).toContain(
-      "Igual ao WhatsApp, porem tambem e marcado no Google Agenda da empresa.",
+      "Combina relacionamento humano e organizacao executiva",
     );
   });
 
@@ -58,7 +58,7 @@ describe("SchedulingConfigForm scheduling model help", () => {
     );
 
     expect(markup).toContain(
-      "Toda confirmacao vai para a plataforma, o cliente recebe a mensagem no WhatsApp e a confirmacao e manual.",
+      "Experiencia premium para alto volume",
     );
   });
 });

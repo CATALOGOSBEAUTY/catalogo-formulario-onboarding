@@ -17,19 +17,19 @@ const schedulingOptions = [
     value: "whatsapp",
     label: "Via WhatsApp",
     description:
-      "O agendamento e enviado para o WhatsApp do cliente da empresa para confirmacao.",
+      "Ideal para uma operacao enxuta e personalizada: cada solicitacao chega no WhatsApp da empresa para que a equipe confirme o horario com atendimento humano e cuidadoso.",
   },
   {
     value: "google_whatsapp",
     label: "Google Agenda + WhatsApp",
     description:
-      "Igual ao WhatsApp, porem tambem e marcado no Google Agenda da empresa.",
+      "Combina relacionamento humano e organizacao executiva: a equipe confirma pelo WhatsApp e o compromisso tambem fica registrado no Google Agenda da empresa.",
   },
   {
     value: "plataforma_completa",
     label: "Plataforma completa",
     description:
-      "Toda confirmacao vai para a plataforma, o cliente recebe a mensagem no WhatsApp e a confirmacao e manual.",
+      "Experiencia premium para alto volume: a plataforma centraliza a confirmacao, o cliente recebe a comunicacao no WhatsApp e a equipe valida manualmente cada atendimento.",
   },
 ] as const;
 
