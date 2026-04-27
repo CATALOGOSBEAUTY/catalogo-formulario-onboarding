@@ -23,7 +23,7 @@ Copie `.env.example` para `.env.local` e preencha:
 - `EVOLUTION_INSTANCE_NAME`
 - `MAX_FILE_SIZE_BYTES`
 
-O destino do WhatsApp e resolvido automaticamente pelo `ownerJid` da instancia configurada em `EVOLUTION_INSTANCE_NAME`. O backend nao usa numero manual para evitar envio para o destino errado.
+`EVOLUTION_INSTANCE_NAME` define a conta/instancia Evolution usada como canal de envio. O destino da mensagem e o WhatsApp comercial preenchido no formulario, normalizado para envio pela Evolution API.
 
 ## Desenvolvimento local
 
