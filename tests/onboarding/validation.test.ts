@@ -13,6 +13,8 @@ describe("parseOnboardingRequestPayload", () => {
         addressStreet: "Av. Paulista",
         addressNumber: "1000",
         addressNeighborhood: "Bela Vista",
+        addressCity: "Sao Paulo",
+        addressState: "SP",
         appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
         cancellationLevel: "Medio",
         rescheduleLevel: "Alto",
@@ -68,6 +70,8 @@ describe("parseOnboardingRequestPayload", () => {
         addressStreet: "Av. Paulista",
         addressNumber: "1000",
         addressNeighborhood: "Bela Vista",
+        addressCity: "Sao Paulo",
+        addressState: "SP",
         appointmentFlow: "Medio - 11 a 30 agendamentos por dia",
         cancellationLevel: "Baixo",
         rescheduleLevel: "Medio",
@@ -128,6 +132,8 @@ describe("parseOnboardingRequestPayload", () => {
         addressStreet: "Av. Paulista",
         addressNumber: "1000",
         addressNeighborhood: "Bela Vista",
+        addressCity: "Sao Paulo",
+        addressState: "SP",
         appointmentFlow: "Muito alto - mais de 80 agendamentos por dia",
         cancellationLevel: "Alto",
         rescheduleLevel: "Medio",
@@ -173,6 +179,8 @@ describe("parseOnboardingRequestPayload", () => {
           addressStreet: "",
           addressNumber: "",
           addressNeighborhood: "",
+          addressCity: "",
+          addressState: "",
           appointmentFlow: "",
           cancellationLevel: "",
           rescheduleLevel: "",
@@ -190,6 +198,59 @@ describe("parseOnboardingRequestPayload", () => {
     ).toThrow("Dados do formulario invalidos");
   });
 
+  it("rejects address fields with invalid numeric format", () => {
+    expect(() =>
+      parseOnboardingRequestPayload({
+        body: {
+          fullName: "Maria Silva",
+          cpf: "123.456.789-00",
+          email: "maria@empresa.com",
+          commercialContact: "(11) 99999-9999",
+          addressZipcode: "0100A-000",
+          addressStreet: "Av. Paulista",
+          addressNumber: "1000A",
+          addressNeighborhood: "Bela Vista",
+          addressCity: "Sao Paulo",
+          addressState: "SP",
+          appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
+          cancellationLevel: "Medio",
+          rescheduleLevel: "Alto",
+          schedulingModel: "plataforma_completa",
+          cancellationFine: "R$ 50,00",
+          rescheduleDetails: "Com 24h de antecedencia",
+          upfrontCost: "20%",
+          hasDomain: "yes",
+          websiteUrl: "https://empresa.com.br",
+          hostingProvider: "Vercel",
+          services: JSON.stringify([
+            {
+              name: "Corte",
+              professionalName: "Joao",
+              duration: "45 minutos",
+              value: "R$ 50,00",
+            },
+          ]),
+        },
+        files: [
+          {
+            category: "procedures",
+            originalName: "antes.jpg",
+            mimeType: "image/jpeg",
+            size: 2048,
+            buffer: Buffer.from("a"),
+          },
+          {
+            category: "facade",
+            originalName: "fachada.jpg",
+            mimeType: "image/jpeg",
+            size: 2048,
+            buffer: Buffer.from("b"),
+          },
+        ],
+      }),
+    ).toThrow("Dados do formulario invalidos");
+  });
+
   it("rejects payload with more than 10 uploaded images", () => {
     expect(() =>
       parseOnboardingRequestPayload({
@@ -202,6 +263,8 @@ describe("parseOnboardingRequestPayload", () => {
           addressStreet: "Av. Paulista",
           addressNumber: "1000",
           addressNeighborhood: "Bela Vista",
+          addressCity: "Sao Paulo",
+          addressState: "SP",
           appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
           cancellationLevel: "Medio",
           rescheduleLevel: "Alto",

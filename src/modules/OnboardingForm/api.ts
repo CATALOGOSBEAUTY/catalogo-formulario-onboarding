@@ -52,6 +52,8 @@ export async function submitOnboardingForm(
   formData.append("addressStreet", data.addressStreet);
   formData.append("addressNumber", data.addressNumber);
   formData.append("addressNeighborhood", data.addressNeighborhood);
+  formData.append("addressCity", data.addressCity);
+  formData.append("addressState", data.addressState);
   formData.append("appointmentFlow", data.appointmentFlow);
   formData.append("cancellationLevel", data.cancellationLevel);
   formData.append("rescheduleLevel", data.rescheduleLevel);

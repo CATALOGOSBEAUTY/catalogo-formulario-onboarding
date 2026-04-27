@@ -28,6 +28,8 @@ function buildSubmission(): OnboardingSubmissionInput {
     addressStreet: "Av. Paulista",
     addressNumber: "1000",
     addressNeighborhood: "Bela Vista",
+    addressCity: "Sao Paulo",
+    addressState: "SP",
     appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
     cancellationLevel: "Medio",
     rescheduleLevel: "Alto",

@@ -24,6 +24,8 @@ export interface OnboardingSubmissionInput {
   addressStreet: string;
   addressNumber: string;
   addressNeighborhood: string;
+  addressCity: string;
+  addressState: string;
   appointmentFlow: string;
   cancellationLevel: string;
   rescheduleLevel: string;

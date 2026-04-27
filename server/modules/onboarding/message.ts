@@ -20,6 +20,7 @@ export function formatOnboardingWhatsAppMessage(input: OnboardingSubmissionInput
     "*Endereco*",
     `CEP: ${input.addressZipcode}`,
     `Endereco: ${input.addressStreet}, ${input.addressNumber} - ${input.addressNeighborhood}`,
+    `Cidade/UF: ${input.addressCity} - ${input.addressState}`,
     "",
     "*Servicos*",
     services,

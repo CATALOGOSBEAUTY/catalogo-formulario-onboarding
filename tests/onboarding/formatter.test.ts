@@ -11,6 +11,8 @@ const buildSubmission = (): OnboardingSubmissionInput => ({
   addressStreet: "Av. Paulista",
   addressNumber: "1000",
   addressNeighborhood: "Bela Vista",
+  addressCity: "Sao Paulo",
+  addressState: "SP",
   appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
   cancellationLevel: "Medio",
   rescheduleLevel: "Alto",
@@ -53,6 +55,7 @@ describe("formatOnboardingWhatsAppMessage", () => {
 
     expect(message).toContain("*Nova solicitacao de onboarding*");
     expect(message).toContain("Nome: Maria Silva");
+    expect(message).toContain("Cidade/UF: Sao Paulo - SP");
     expect(message).toContain("1. Corte");
     expect(message).toContain("Profissional: Joao Souza");
     expect(message).toContain("Fluxo de pessoas que agendam: Alto - 31 a 80 agendamentos por dia");

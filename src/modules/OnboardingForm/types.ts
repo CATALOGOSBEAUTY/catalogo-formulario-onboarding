@@ -22,6 +22,8 @@ export interface OnboardingFormState {
   addressStreet: string;
   addressNumber: string;
   addressNeighborhood: string;
+  addressCity: string;
+  addressState: string;
 
   // Services
   services: ServiceItem[];

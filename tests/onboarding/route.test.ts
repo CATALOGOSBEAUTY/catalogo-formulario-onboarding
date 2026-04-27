@@ -23,6 +23,8 @@ describe("POST /api/onboarding-submissions", () => {
       .field("addressStreet", "Av. Paulista")
       .field("addressNumber", "1000")
       .field("addressNeighborhood", "Bela Vista")
+      .field("addressCity", "Sao Paulo")
+      .field("addressState", "SP")
       .field("appointmentFlow", "Alto - 31 a 80 agendamentos por dia")
       .field("cancellationLevel", "Medio")
       .field("rescheduleLevel", "Alto")

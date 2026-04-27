@@ -19,6 +19,8 @@ const INITIAL_STATE: OnboardingFormState = {
   addressStreet: "",
   addressNumber: "",
   addressNeighborhood: "",
+  addressCity: "",
+  addressState: "",
   services: [],
   appointmentFlow: "",
   cancellationLevel: "",
