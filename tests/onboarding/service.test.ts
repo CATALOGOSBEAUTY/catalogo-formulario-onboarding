@@ -97,11 +97,10 @@ function createSupabaseMock() {
 }
 
 describe("createOnboardingService", () => {
-  it("sends text and one organized Excel report to the commercial whatsapp number", async () => {
+  it("sends only one organized Excel report to the commercial whatsapp number", async () => {
     const env = buildEnv();
     const fetchMock = vi
       .fn<typeof fetch>()
-      .mockResolvedValueOnce(jsonResponse({ key: { id: "text-message" } }))
       .mockResolvedValueOnce(jsonResponse({ key: { id: "excel-report" } }));
 
     const service = createOnboardingService({
@@ -112,16 +111,12 @@ describe("createOnboardingService", () => {
 
     await service.submit(buildSubmission());
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
 
-    const requestInit = fetchMock.mock.calls[0]?.[1];
-    const body = JSON.parse(String(requestInit?.body));
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/message/sendMedia/diaprao");
+    expect(String(fetchMock.mock.calls[0]?.[0])).not.toContain("/message/sendText/");
 
-    expect(body.number).toBe("5511999999999");
-
-    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("/message/sendMedia/diaprao");
-
-    const reportRequestInit = fetchMock.mock.calls[1]?.[1];
+    const reportRequestInit = fetchMock.mock.calls[0]?.[1];
     const reportBody = JSON.parse(String(reportRequestInit?.body));
 
     expect(reportBody.number).toBe("5511999999999");

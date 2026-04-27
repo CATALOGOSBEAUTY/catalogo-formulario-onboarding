@@ -1,7 +1,6 @@
 import { randomUUID } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppEnv } from "../../config/env.js";
-import { formatOnboardingWhatsAppMessage } from "./message.js";
 import { buildOnboardingWorkbook } from "./workbook.js";
 import type {
   OnboardingService,
@@ -107,30 +106,6 @@ function deriveProfessionalsFromServices(input: OnboardingSubmissionInput) {
 
 function appendContext(value: string, label: string, context: string) {
   return `${value}\n${label}: ${context}`;
-}
-
-async function sendWhatsAppTextMessage(
-  env: AppEnv,
-  fetchImpl: typeof fetch,
-  destinationNumber: string,
-  input: OnboardingSubmissionInput,
-) {
-  const response = await fetchImpl(
-    `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendText/${env.EVOLUTION_INSTANCE_NAME}`,
-    {
-      method: "POST",
-      headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
-      body: JSON.stringify({
-        number: destinationNumber,
-        text: formatOnboardingWhatsAppMessage(input),
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Falha ao enviar mensagem via Evolution: ${errorText}`);
-  }
 }
 
 async function sendWhatsAppWorkbookMessage(
@@ -268,7 +243,6 @@ export function createOnboardingService({
 
       try {
         const destinationNumber = normalizeCommercialWhatsAppNumber(input.commercialContact);
-        await sendWhatsAppTextMessage(env, fetchImpl, destinationNumber, input);
         await sendWhatsAppWorkbookMessage(env, fetchImpl, destinationNumber, input);
         await supabase
           .from("onboarding_submissions")
