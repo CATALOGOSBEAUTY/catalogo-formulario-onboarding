@@ -97,20 +97,10 @@ function createSupabaseMock() {
 }
 
 describe("createOnboardingService", () => {
-  it("sends the message to the whatsapp number connected to the configured evolution instance", async () => {
+  it("sends the message to the commercial whatsapp number submitted in the form", async () => {
     const env = buildEnv();
     const fetchMock = vi
       .fn<typeof fetch>()
-      .mockResolvedValueOnce(
-        jsonResponse({
-          value: [
-            {
-              name: "diaprao",
-              ownerJid: "557182589134@s.whatsapp.net",
-            },
-          ],
-        }),
-      )
       .mockResolvedValueOnce(jsonResponse({ key: { id: "text-message" } }))
       .mockResolvedValueOnce(jsonResponse({ key: { id: "media-1" } }))
       .mockResolvedValueOnce(jsonResponse({ key: { id: "media-2" } }));
@@ -123,14 +113,14 @@ describe("createOnboardingService", () => {
 
     await service.submit(buildSubmission());
 
-    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
 
-    const requestInit = fetchMock.mock.calls[1]?.[1];
+    const requestInit = fetchMock.mock.calls[0]?.[1];
     const body = JSON.parse(String(requestInit?.body));
 
-    expect(body.number).toBe("557182589134");
+    expect(body.number).toBe("5511999999999");
 
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("/message/sendMedia/diaprao");
     expect(String(fetchMock.mock.calls[2]?.[0])).toContain("/message/sendMedia/diaprao");
-    expect(String(fetchMock.mock.calls[3]?.[0])).toContain("/message/sendMedia/diaprao");
   });
 });

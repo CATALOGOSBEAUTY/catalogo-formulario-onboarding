@@ -15,20 +15,26 @@ interface CreateOnboardingServiceDeps {
   fetchImpl?: typeof fetch;
 }
 
-interface EvolutionInstanceRecord {
-  name?: string;
-  ownerJid?: string;
-  instance?: {
-    instanceName?: string;
-  };
-  owner?: {
-    id?: string;
-    jid?: string;
-  };
-}
-
 function sanitizeDigits(value: string) {
   return value.replace(/\D/g, "");
+}
+
+function normalizeCommercialWhatsAppNumber(value: string) {
+  const digits = sanitizeDigits(value);
+
+  if (!digits) {
+    throw new Error("WhatsApp comercial sem numero valido.");
+  }
+
+  if (digits.startsWith("55")) {
+    return digits;
+  }
+
+  if (digits.length === 10 || digits.length === 11) {
+    return `55${digits}`;
+  }
+
+  return digits;
 }
 
 function sanitizeSegment(value: string) {
@@ -46,76 +52,6 @@ function getEvolutionHeaders(apiKey: string) {
     apikey: apiKey,
     Authorization: `Bearer ${apiKey}`,
   };
-}
-
-function parseEvolutionInstances(payload: unknown): EvolutionInstanceRecord[] {
-  if (Array.isArray(payload)) {
-    return payload as EvolutionInstanceRecord[];
-  }
-
-  if (!payload || typeof payload !== "object") {
-    return [];
-  }
-
-  const candidate = payload as {
-    value?: unknown;
-    instances?: unknown;
-  };
-
-  if (Array.isArray(candidate.value)) {
-    return candidate.value as EvolutionInstanceRecord[];
-  }
-
-  if (Array.isArray(candidate.instances)) {
-    return candidate.instances as EvolutionInstanceRecord[];
-  }
-
-  return [];
-}
-
-function extractInstanceName(instance: EvolutionInstanceRecord) {
-  return instance.name ?? instance.instance?.instanceName ?? "";
-}
-
-function extractInstanceOwnerJid(instance: EvolutionInstanceRecord) {
-  return instance.ownerJid ?? instance.owner?.jid ?? instance.owner?.id ?? "";
-}
-
-async function resolveInstanceDestinationNumber(env: AppEnv, fetchImpl: typeof fetch) {
-  const response = await fetchImpl(
-    `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/instance/fetchInstances`,
-    {
-      method: "GET",
-      headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
-    },
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Falha ao consultar instancia Evolution: ${errorText}`);
-  }
-
-  const payload = (await response.json()) as unknown;
-  const instances = parseEvolutionInstances(payload);
-  const instance = instances.find(
-    (candidate) => extractInstanceName(candidate) === env.EVOLUTION_INSTANCE_NAME,
-  );
-
-  if (!instance) {
-    throw new Error(
-      `Instancia Evolution nao encontrada: ${env.EVOLUTION_INSTANCE_NAME}`,
-    );
-  }
-
-  const destinationNumber = sanitizeDigits(extractInstanceOwnerJid(instance));
-
-  if (!destinationNumber) {
-    throw new Error(
-      `Instancia Evolution sem ownerJid valido: ${env.EVOLUTION_INSTANCE_NAME}`,
-    );
-  }
-
-  return destinationNumber;
 }
 
 async function uploadFiles(
@@ -356,7 +292,7 @@ export function createOnboardingService({
       }
 
       try {
-        const destinationNumber = await resolveInstanceDestinationNumber(env, fetchImpl);
+        const destinationNumber = normalizeCommercialWhatsAppNumber(input.commercialContact);
         await sendWhatsAppTextMessage(env, fetchImpl, destinationNumber, input);
         await sendWhatsAppMediaMessages(env, fetchImpl, destinationNumber, input.files);
         await supabase
