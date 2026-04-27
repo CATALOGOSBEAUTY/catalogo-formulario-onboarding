@@ -1,0 +1,20 @@
+name: Render Keepalive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping production health endpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Keep Render web service warm
+        run: |
+          curl --fail --silent --show-error --max-time 30 --retry 3 --retry-delay 5 \
+            https://sistematize.onrender.com/api/health
