@@ -7,6 +7,7 @@ import { Label } from "@/src/components/ui/Label";
 import { Select } from "@/src/components/ui/Select";
 import { Button } from "@/src/components/ui/Button";
 import { CurrencyUnit, DurationUnit, OnboardingFormState, ServiceItem } from "../types";
+import { formatDigitsOnly, formatMoneyInput } from "../numberFormatting";
 
 interface Props {
   data: OnboardingFormState;
@@ -162,10 +163,12 @@ export function BusinessServicesForm({ data, updateData }: Props) {
                         </Label>
                         <Input
                           placeholder="Ex: 45"
-                          inputMode="decimal"
+                          inputMode="numeric"
                           value={service.durationValue}
                           onChange={(e) =>
-                            updateService(service.id, { durationValue: e.target.value })
+                            updateService(service.id, {
+                              durationValue: formatDigitsOnly(e.target.value),
+                            })
                           }
                           required
                         />
@@ -195,10 +198,12 @@ export function BusinessServicesForm({ data, updateData }: Props) {
                       </Label>
                       <Input
                         placeholder="Ex: 50,00"
-                        inputMode="decimal"
+                        inputMode="numeric"
                         value={service.valueAmount}
                         onChange={(e) =>
-                          updateService(service.id, { valueAmount: e.target.value })
+                          updateService(service.id, {
+                            valueAmount: formatMoneyInput(e.target.value),
+                          })
                         }
                         required
                       />

@@ -6,6 +6,7 @@ import { Label } from "@/src/components/ui/Label";
 import { Select } from "@/src/components/ui/Select";
 import { Textarea } from "@/src/components/ui/Textarea";
 import { OnboardingFormState, PriceUnit } from "../types";
+import { formatAmountInput } from "../numberFormatting";
 
 interface Props {
   data: OnboardingFormState;
@@ -155,15 +156,28 @@ export function SchedulingConfigForm({ data, updateData }: Props) {
               <Input
                 id="cancellationFine"
                 placeholder="Ex: 50,00"
-                inputMode="decimal"
+                inputMode="numeric"
                 value={data.cancellationFineAmount}
-                onChange={(e) => updateData({ cancellationFineAmount: e.target.value })}
+                onChange={(e) =>
+                  updateData({
+                    cancellationFineAmount: formatAmountInput(
+                      e.target.value,
+                      data.cancellationFineUnit,
+                    ),
+                  })
+                }
                 required
               />
               <Select
                 value={data.cancellationFineUnit}
                 onChange={(e) =>
-                  updateData({ cancellationFineUnit: e.target.value as PriceUnit })
+                  updateData({
+                    cancellationFineUnit: e.target.value as PriceUnit,
+                    cancellationFineAmount: formatAmountInput(
+                      data.cancellationFineAmount,
+                      e.target.value as PriceUnit,
+                    ),
+                  })
                 }
               >
                 {moneyOptions.map((option) => (
@@ -196,15 +210,25 @@ export function SchedulingConfigForm({ data, updateData }: Props) {
               <Input
                 id="upfrontCost"
                 placeholder="Ex: 50"
-                inputMode="decimal"
+                inputMode="numeric"
                 value={data.upfrontCostAmount}
-                onChange={(e) => updateData({ upfrontCostAmount: e.target.value })}
+                onChange={(e) =>
+                  updateData({
+                    upfrontCostAmount: formatAmountInput(e.target.value, data.upfrontCostUnit),
+                  })
+                }
                 required
               />
               <Select
                 value={data.upfrontCostUnit}
                 onChange={(e) =>
-                  updateData({ upfrontCostUnit: e.target.value as PriceUnit })
+                  updateData({
+                    upfrontCostUnit: e.target.value as PriceUnit,
+                    upfrontCostAmount: formatAmountInput(
+                      data.upfrontCostAmount,
+                      e.target.value as PriceUnit,
+                    ),
+                  })
                 }
               >
                 {moneyOptions.map((option) => (
