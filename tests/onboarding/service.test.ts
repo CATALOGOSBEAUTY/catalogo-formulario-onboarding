@@ -97,13 +97,12 @@ function createSupabaseMock() {
 }
 
 describe("createOnboardingService", () => {
-  it("sends the message to the commercial whatsapp number submitted in the form", async () => {
+  it("sends text and one organized Excel report to the commercial whatsapp number", async () => {
     const env = buildEnv();
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse({ key: { id: "text-message" } }))
-      .mockResolvedValueOnce(jsonResponse({ key: { id: "media-1" } }))
-      .mockResolvedValueOnce(jsonResponse({ key: { id: "media-2" } }));
+      .mockResolvedValueOnce(jsonResponse({ key: { id: "excel-report" } }));
 
     const service = createOnboardingService({
       env,
@@ -113,7 +112,7 @@ describe("createOnboardingService", () => {
 
     await service.submit(buildSubmission());
 
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
 
     const requestInit = fetchMock.mock.calls[0]?.[1];
     const body = JSON.parse(String(requestInit?.body));
@@ -121,6 +120,16 @@ describe("createOnboardingService", () => {
     expect(body.number).toBe("5511999999999");
 
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain("/message/sendMedia/diaprao");
-    expect(String(fetchMock.mock.calls[2]?.[0])).toContain("/message/sendMedia/diaprao");
+
+    const reportRequestInit = fetchMock.mock.calls[1]?.[1];
+    const reportBody = JSON.parse(String(reportRequestInit?.body));
+
+    expect(reportBody.number).toBe("5511999999999");
+    expect(reportBody.mediatype).toBe("document");
+    expect(reportBody.mimetype).toBe("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    expect(reportBody.fileName).toMatch(/onboarding-maria-silva\.xlsx/);
+    expect(reportBody.caption).toContain("planilha organizada");
+    expect(typeof reportBody.media).toBe("string");
+    expect(reportBody.media.length).toBeGreaterThan(100);
   });
 });

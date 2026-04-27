@@ -23,7 +23,7 @@ Copie `.env.example` para `.env.local` e preencha:
 - `EVOLUTION_INSTANCE_NAME`
 - `MAX_FILE_SIZE_BYTES`
 
-`EVOLUTION_INSTANCE_NAME` define a conta/instancia Evolution usada como canal de envio. O destino da mensagem e o WhatsApp comercial preenchido no formulario, normalizado para envio pela Evolution API.
+`EVOLUTION_INSTANCE_NAME` define a conta/instancia Evolution usada como canal de envio. O destino da mensagem e o WhatsApp comercial preenchido no formulario, normalizado para envio pela Evolution API. O backend envia o relatorio em texto e uma planilha `.xlsx` organizada com dados, servicos e imagens separadas por abas.
 
 ## Desenvolvimento local
 

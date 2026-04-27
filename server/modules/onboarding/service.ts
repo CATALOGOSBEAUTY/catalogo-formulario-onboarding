@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppEnv } from "../../config/env.js";
 import { formatOnboardingWhatsAppMessage } from "./message.js";
+import { buildOnboardingWorkbook } from "./workbook.js";
 import type {
   OnboardingService,
   OnboardingSubmissionInput,
@@ -88,23 +89,6 @@ async function uploadFiles(
   return uploadedFiles;
 }
 
-function getMediaType(mimeType: string) {
-  if (mimeType.startsWith("image/")) {
-    return "image";
-  }
-
-  if (mimeType.startsWith("video/")) {
-    return "video";
-  }
-
-  return "document";
-}
-
-function buildMediaCaption(file: OnboardingUploadedFile, index: number) {
-  const label = file.category === "procedures" ? "Procedimentos" : "Fachada e ambiente";
-  return `${label} ${index + 1}: ${file.originalName}`;
-}
-
 function deriveProfessionalsFromServices(input: OnboardingSubmissionInput) {
   const grouped = new Map<string, Set<string>>();
 
@@ -149,42 +133,33 @@ async function sendWhatsAppTextMessage(
   }
 }
 
-async function sendWhatsAppMediaMessages(
+async function sendWhatsAppWorkbookMessage(
   env: AppEnv,
   fetchImpl: typeof fetch,
   destinationNumber: string,
-  files: OnboardingUploadedFile[],
+  input: OnboardingSubmissionInput,
 ) {
-  const maxConcurrentUploads = 3;
-
-  for (let batchStart = 0; batchStart < files.length; batchStart += maxConcurrentUploads) {
-    const batch = files.slice(batchStart, batchStart + maxConcurrentUploads);
-
-    await Promise.all(
-      batch.map(async (file, batchIndex) => {
-        const fileIndex = batchStart + batchIndex;
-        const response = await fetchImpl(
-          `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendMedia/${env.EVOLUTION_INSTANCE_NAME}`,
-          {
-            method: "POST",
-            headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
-            body: JSON.stringify({
-              number: destinationNumber,
-              mediatype: getMediaType(file.mimeType),
-              mimetype: file.mimeType,
-              caption: buildMediaCaption(file, fileIndex),
-              media: file.buffer.toString("base64"),
-              fileName: file.originalName,
-            }),
-          },
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Falha ao enviar midia via Evolution: ${errorText}`);
-        }
+  const workbook = await buildOnboardingWorkbook(input);
+  const fileName = `onboarding-${sanitizeSegment(input.fullName || "cliente")}.xlsx`;
+  const response = await fetchImpl(
+    `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendMedia/${env.EVOLUTION_INSTANCE_NAME}`,
+    {
+      method: "POST",
+      headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
+      body: JSON.stringify({
+        number: destinationNumber,
+        mediatype: "document",
+        mimetype: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        caption: "planilha organizada do onboarding com dados, servicos e imagens separadas por abas.",
+        media: workbook.toString("base64"),
+        fileName,
       }),
-    );
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Falha ao enviar planilha via Evolution: ${errorText}`);
   }
 }
 
@@ -294,7 +269,7 @@ export function createOnboardingService({
       try {
         const destinationNumber = normalizeCommercialWhatsAppNumber(input.commercialContact);
         await sendWhatsAppTextMessage(env, fetchImpl, destinationNumber, input);
-        await sendWhatsAppMediaMessages(env, fetchImpl, destinationNumber, input.files);
+        await sendWhatsAppWorkbookMessage(env, fetchImpl, destinationNumber, input);
         await supabase
           .from("onboarding_submissions")
           .update({
