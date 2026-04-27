@@ -10,6 +10,7 @@ const envSchema = z.object({
   EVOLUTION_API_URL: z.string().url(),
   EVOLUTION_API_KEY: z.string().min(1),
   EVOLUTION_INSTANCE_NAME: z.string().min(1),
+  ONBOARDING_REPORT_GROUP_JID: z.string().min(1).optional(),
   MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive().default(10 * 1024 * 1024),
 });
 

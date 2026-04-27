@@ -14,6 +14,7 @@ function buildEnv(): AppEnv {
     EVOLUTION_API_URL: "https://saasevolution.azurewebsites.net",
     EVOLUTION_API_KEY: "test-api-key",
     EVOLUTION_INSTANCE_NAME: "diaprao",
+    ONBOARDING_REPORT_GROUP_JID: "120363424441218739@g.us",
     MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
   };
 }
@@ -97,7 +98,7 @@ function createSupabaseMock() {
 }
 
 describe("createOnboardingService", () => {
-  it("sends only one organized Excel report to the commercial whatsapp number", async () => {
+  it("sends only one organized Excel report to the configured whatsapp group", async () => {
     const env = buildEnv();
     const fetchMock = vi
       .fn<typeof fetch>()
@@ -119,7 +120,7 @@ describe("createOnboardingService", () => {
     const reportRequestInit = fetchMock.mock.calls[0]?.[1];
     const reportBody = JSON.parse(String(reportRequestInit?.body));
 
-    expect(reportBody.number).toBe("5511999999999");
+    expect(reportBody.number).toBe("120363424441218739@g.us");
     expect(reportBody.mediatype).toBe("document");
     expect(reportBody.mimetype).toBe("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     expect(reportBody.fileName).toMatch(/onboarding-maria-silva\.xlsx/);

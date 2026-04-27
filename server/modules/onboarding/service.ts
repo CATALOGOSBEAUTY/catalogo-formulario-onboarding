@@ -37,6 +37,14 @@ function normalizeCommercialWhatsAppNumber(value: string) {
   return digits;
 }
 
+function resolveReportDestinationNumber(env: AppEnv, input: OnboardingSubmissionInput) {
+  if (env.ONBOARDING_REPORT_GROUP_JID) {
+    return env.ONBOARDING_REPORT_GROUP_JID;
+  }
+
+  return normalizeCommercialWhatsAppNumber(input.commercialContact);
+}
+
 function sanitizeSegment(value: string) {
   return value
     .toLowerCase()
@@ -242,7 +250,7 @@ export function createOnboardingService({
       }
 
       try {
-        const destinationNumber = normalizeCommercialWhatsAppNumber(input.commercialContact);
+        const destinationNumber = resolveReportDestinationNumber(env, input);
         await sendWhatsAppWorkbookMessage(env, fetchImpl, destinationNumber, input);
         await supabase
           .from("onboarding_submissions")
