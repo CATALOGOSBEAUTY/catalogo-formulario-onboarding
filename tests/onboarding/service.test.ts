@@ -124,7 +124,7 @@ describe("createOnboardingService", () => {
     expect(reportBody.mediatype).toBe("document");
     expect(reportBody.mimetype).toBe("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     expect(reportBody.fileName).toMatch(/onboarding-maria-silva\.xlsx/);
-    expect(reportBody.caption).toContain("planilha organizada");
+    expect(reportBody.caption).toBeUndefined();
     expect(typeof reportBody.media).toBe("string");
     expect(reportBody.media.length).toBeGreaterThan(100);
   });

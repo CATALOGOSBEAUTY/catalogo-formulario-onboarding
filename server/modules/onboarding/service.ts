@@ -133,7 +133,6 @@ async function sendWhatsAppWorkbookMessage(
         number: destinationNumber,
         mediatype: "document",
         mimetype: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        caption: "planilha organizada do onboarding com dados, servicos e imagens separadas por abas.",
         media: workbook.toString("base64"),
         fileName,
       }),
