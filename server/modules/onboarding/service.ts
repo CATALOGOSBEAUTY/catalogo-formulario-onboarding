@@ -37,12 +37,12 @@ function normalizeCommercialWhatsAppNumber(value: string) {
   return digits;
 }
 
-function resolveReportDestinationNumber(env: AppEnv, input: OnboardingSubmissionInput) {
+function resolveReportDestinationNumber(env: AppEnv) {
   if (env.ONBOARDING_REPORT_GROUP_JID) {
     return env.ONBOARDING_REPORT_GROUP_JID;
   }
 
-  return normalizeCommercialWhatsAppNumber(input.commercialContact);
+  return env.COMPANY_WHATSAPP_NUMBER;
 }
 
 function sanitizeSegment(value: string) {
@@ -226,7 +226,7 @@ export function createOnboardingService({
 
       // Send WhatsApp workbook
       try {
-        const destinationNumber = resolveReportDestinationNumber(env, input);
+        const destinationNumber = resolveReportDestinationNumber(env);
         await sendWhatsAppWorkbookMessage(env, fetchImpl, destinationNumber, input);
         await supabase
           .from("onboarding_submissions")

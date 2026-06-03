@@ -78,6 +78,7 @@ function createMockEnv(): AppEnv {
     EVOLUTION_API_URL: "https://evo.test.io/",
     EVOLUTION_API_KEY: "evo-key",
     EVOLUTION_INSTANCE_NAME: "test-instance",
+    COMPANY_WHATSAPP_NUMBER: "5571982589134",
     ONBOARDING_REPORT_GROUP_JID: "5511999999999@g.us",
     MAX_FILE_SIZE_BYTES: 10485760,
   };
