@@ -49,8 +49,7 @@ export interface OnboardingSubmissionInput {
   needsWhatsApp: boolean;
   needsSeo: boolean;
   siteLanguages: string[];
-  analyticsRequired: string[];
-  trackingPixels: string[];
+
   projectScopeConfig: Record<string, unknown>;
 
   // Steps 09-10: Design e Infra
@@ -66,12 +65,7 @@ export interface OnboardingSubmissionInput {
   needsWcagCompliance: boolean;
   needsPostLaunchSupport: boolean;
 
-  // Steps 11-12: Cronograma e Anexos
-  decisionMaker: string;
-  hasCriticalDeadline: boolean;
-  criticalDeadlineReason: string;
-  deliveryTimeline: string;
-  projectBudget: string;
+  // Step 11: Conteudo e Anexos
   contentStatus: string;
   preferredContactChannel: string;
   meetingFrequency: string;

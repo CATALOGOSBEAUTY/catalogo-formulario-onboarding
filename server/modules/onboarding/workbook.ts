@@ -142,8 +142,7 @@ function createScopeSheet(workbook: ExcelJS.Workbook, input: OnboardingSubmissio
     ["Integracao com WhatsApp", boolToText(input.needsWhatsApp)],
     ["SEO otimizado", boolToText(input.needsSeo)],
     ["Idiomas do site", arrayToText(input.siteLanguages)],
-    ["Analytics/Rastreamento", arrayToText(input.analyticsRequired)],
-    ["Pixels de midia paga", arrayToText(input.trackingPixels)],
+
   ]);
 
   // Campos condicionais do escopo
@@ -239,15 +238,8 @@ function createCommercialSheet(workbook: ExcelJS.Workbook, input: OnboardingSubm
     cell.font = headerFont;
   });
 
-  addKeyValueRows(sheet, "1. Prazo e Investimento", [
-    ["Tomador de decisao", input.decisionMaker],
-    ["Data critica de lancamento", boolToText(input.hasCriticalDeadline)],
-    ["Motivo do prazo critico", input.hasCriticalDeadline ? input.criticalDeadlineReason : "N/A"],
-    ["Prazo estimado de entrega", input.deliveryTimeline],
-    ["Faixa de investimento", input.projectBudget],
-  ]);
 
-  addKeyValueRows(sheet, "2. Conteudo e Comunicacao", [
+  addKeyValueRows(sheet, "1. Conteudo e Comunicacao", [
     ["Status do conteudo textual", input.contentStatus],
     ["Canal de comunicacao preferido", input.preferredContactChannel],
     ["Frequencia de reunioes", input.meetingFrequency],

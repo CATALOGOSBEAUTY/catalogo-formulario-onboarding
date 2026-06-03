@@ -131,22 +131,6 @@ export function getStepValidationError(
     }
 
     case 11: {
-      if (isBlank(data.decisionMaker)) {
-        return "Selecione quem decide sobre o projeto.";
-      }
-      if (isBlank(data.deliveryTimeline)) {
-        return "Selecione o prazo estimado de entrega.";
-      }
-      if (isBlank(data.projectBudget)) {
-        return "Selecione a faixa de investimento.";
-      }
-      if (data.hasCriticalDeadline && isBlank(data.criticalDeadlineReason)) {
-        return "Selecione o motivo do prazo critico.";
-      }
-      return null;
-    }
-
-    case 12: {
       if (isBlank(data.contentStatus)) {
         return "Selecione o status do conteudo textual.";
       }

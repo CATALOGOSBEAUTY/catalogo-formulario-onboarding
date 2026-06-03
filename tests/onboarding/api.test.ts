@@ -28,9 +28,6 @@ function buildValidFormState(overrides: Partial<OnboardingFormState> = {}): Onbo
     brandingStatus: "partial",
     designStyle: ["minimalist", "tech"],
     brandVoice: ["Profissional e Tecnico", "Jovem e Moderno"],
-    decisionMaker: "Sou eu mesmo",
-    deliveryTimeline: "standard",
-    projectBudget: "tier_2",
     contentStatus: "Temos parte do conteudo",
     preferredContactChannel: "WhatsApp",
     meetingFrequency: "Reunioes semanais",
@@ -76,7 +73,6 @@ describe("submitOnboardingForm", () => {
     expect(capturedFormData.get("companyName")).toBe("Studio Digital Ltda");
     expect(capturedFormData.get("isRemote")).toBe("yes");
     expect(capturedFormData.get("projectType")).toBe("landing_page");
-    expect(capturedFormData.get("deliveryTimeline")).toBe("standard");
 
     const scopeConfig = JSON.parse(capturedFormData.get("projectScopeConfig") as string);
     expect(scopeConfig.landingPageCta).toBe("Solicitar Orcamento");

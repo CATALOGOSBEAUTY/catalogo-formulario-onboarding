@@ -174,8 +174,7 @@ export function createOnboardingService({
         needs_whatsapp: input.needsWhatsApp,
         needs_seo: input.needsSeo,
         site_languages: input.siteLanguages,
-        analytics_required: input.analyticsRequired,
-        tracking_pixels: input.trackingPixels,
+
         project_scope_config: input.projectScopeConfig,
 
         branding_status: input.brandingStatus,
@@ -190,11 +189,7 @@ export function createOnboardingService({
         needs_wcag: input.needsWcagCompliance,
         needs_post_support: input.needsPostLaunchSupport,
 
-        decision_maker: input.decisionMaker,
-        has_critical_deadline: input.hasCriticalDeadline,
-        critical_deadline_reason: input.hasCriticalDeadline ? input.criticalDeadlineReason : null,
-        delivery_timeline: input.deliveryTimeline,
-        project_budget: input.projectBudget,
+
         content_status: input.contentStatus,
         preferred_contact: input.preferredContactChannel,
         meeting_frequency: input.meetingFrequency,

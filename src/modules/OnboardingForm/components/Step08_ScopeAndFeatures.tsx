@@ -11,8 +11,7 @@ interface Props {
 }
 
 const LANGUAGE_OPTIONS = ["Portugues", "Ingles", "Espanhol", "Frances", "Outro"];
-const ANALYTICS_OPTIONS = ["Google Analytics 4 (GA4)", "Google Search Console", "Hotjar / Clarity (heatmaps)", "Outro"];
-const TRACKING_PIXEL_OPTIONS = ["Meta Pixel (Facebook/Instagram)", "Google Ads Tag", "LinkedIn Insight Tag", "TikTok Pixel", "Nenhum"];
+
 
 // Landing Page
 const LANDING_CTA_OPTIONS = ["Solicitar Orcamento", "Baixar Ebook/Material Gratuito", "Comprar Agora", "Agendar Demonstracao", "Entrar em Contato pelo WhatsApp", "Cadastrar-se em Lista de Espera"];
@@ -56,16 +55,7 @@ export function Step08_ScopeAndFeatures({ data, updateData }: Props) {
           <CheckboxGroup id="siteLanguages" options={LANGUAGE_OPTIONS} selected={data.siteLanguages} onChange={(v) => updateData({ siteLanguages: v })} columns={3} />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Rastreamento e analytics</Label>
-            <CheckboxGroup id="analyticsRequired" options={ANALYTICS_OPTIONS} selected={data.analyticsRequired} onChange={(v) => updateData({ analyticsRequired: v })} columns={1} />
-          </div>
-          <div className="space-y-2">
-            <Label>Pixels de midia paga</Label>
-            <CheckboxGroup id="trackingPixels" options={TRACKING_PIXEL_OPTIONS} selected={data.trackingPixels} onChange={(v) => updateData({ trackingPixels: v })} columns={1} />
-          </div>
-        </div>
+
 
         {/* Landing Page */}
         {data.projectType === "landing_page" ? (

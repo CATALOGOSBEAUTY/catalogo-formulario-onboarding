@@ -11,15 +11,14 @@ import { Step07_ProjectType } from "./components/Step07_ProjectType";
 import { Step08_ScopeAndFeatures } from "./components/Step08_ScopeAndFeatures";
 import { Step09_VisualIdentity } from "./components/Step09_VisualIdentity";
 import { Step10_VoiceAndInfra } from "./components/Step10_VoiceAndInfra";
-import { Step11_TimelineAndBudget } from "./components/Step11_TimelineAndBudget";
-import { Step12_ContentAndFiles } from "./components/Step12_ContentAndFiles";
+import { Step11_ContentAndFiles } from "./components/Step12_ContentAndFiles";
 import type { OnboardingFormState } from "./types";
 import { INITIAL_FORM_STATE } from "./types";
 import { Button } from "@/src/components/ui/Button";
 import { submitOnboardingForm } from "./api";
 import { getStepValidationError } from "./validation";
 
-const TOTAL_STEPS = 12;
+const TOTAL_STEPS = 11;
 
 const STEP_LABELS = [
   "Responsável",
@@ -32,7 +31,6 @@ const STEP_LABELS = [
   "Escopo",
   "Visual",
   "Voz",
-  "Prazo",
   "Anexos",
 ];
 
@@ -56,8 +54,7 @@ function StepContent({
     case 8: return <Step08_ScopeAndFeatures data={data} updateData={updateData} />;
     case 9: return <Step09_VisualIdentity data={data} updateData={updateData} />;
     case 10: return <Step10_VoiceAndInfra data={data} updateData={updateData} />;
-    case 11: return <Step11_TimelineAndBudget data={data} updateData={updateData} />;
-    case 12: return <Step12_ContentAndFiles data={data} updateData={updateData} />;
+    case 11: return <Step11_ContentAndFiles data={data} updateData={updateData} />;
     default: return null;
   }
 }

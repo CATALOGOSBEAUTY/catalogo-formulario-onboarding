@@ -15,9 +15,7 @@ export type BrandingStatus = "" | "ready" | "partial" | "none";
 
 export type DesignStyle = "minimalist" | "tech" | "corporate" | "creative" | "luxury" | "warm";
 
-export type DeliveryTimeline = "" | "urgent" | "standard" | "structured" | "flexible";
 
-export type ProjectBudget = "" | "tier_1" | "tier_2" | "tier_3" | "tier_4" | "tier_5";
 
 // ===== Form State (Frontend) =====
 
@@ -72,8 +70,7 @@ export interface OnboardingFormState {
   needsWhatsApp: boolean;
   needsSeo: boolean;
   siteLanguages: string[];
-  analyticsRequired: string[];
-  trackingPixels: string[];
+
   // Landing Page conditionals
   landingPageCta: string;
   hasProductVideo: boolean;
@@ -115,14 +112,7 @@ export interface OnboardingFormState {
   needsWcagCompliance: boolean;
   needsPostLaunchSupport: boolean;
 
-  // Step 11 — Prazo e Investimento
-  decisionMaker: string;
-  hasCriticalDeadline: boolean;
-  criticalDeadlineReason: string;      // now comes from select options
-  deliveryTimeline: DeliveryTimeline;
-  projectBudget: ProjectBudget;
-
-  // Step 12 — Conteudo e Anexos
+  // Step 11 — Conteudo e Anexos
   contentStatus: string;
   preferredContactChannel: string;
   meetingFrequency: string;
@@ -166,8 +156,7 @@ export const INITIAL_FORM_STATE: OnboardingFormState = {
   needsWhatsApp: false,
   needsSeo: false,
   siteLanguages: [],
-  analyticsRequired: [],
-  trackingPixels: [],
+
   landingPageCta: "",
   hasProductVideo: false,
   leadCaptureMethod: "",
@@ -200,11 +189,7 @@ export const INITIAL_FORM_STATE: OnboardingFormState = {
   needsSeoConsulting: false,
   needsWcagCompliance: false,
   needsPostLaunchSupport: false,
-  decisionMaker: "",
-  hasCriticalDeadline: false,
-  criticalDeadlineReason: "",
-  deliveryTimeline: "",
-  projectBudget: "",
+
   contentStatus: "",
   preferredContactChannel: "",
   meetingFrequency: "",

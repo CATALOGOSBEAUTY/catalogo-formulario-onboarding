@@ -54,8 +54,7 @@ const onboardingSchema = z.object({
   needsWhatsApp: z.boolean(),
   needsSeo: z.boolean(),
   siteLanguages: z.array(z.string()).min(1),
-  analyticsRequired: z.array(z.string()),
-  trackingPixels: z.array(z.string()),
+
   projectScopeConfig: z.record(z.unknown()),
 
   // Steps 09-10
@@ -71,12 +70,7 @@ const onboardingSchema = z.object({
   needsWcagCompliance: z.boolean(),
   needsPostLaunchSupport: z.boolean(),
 
-  // Steps 11-12
-  decisionMaker: z.string().trim().min(1),
-  hasCriticalDeadline: z.boolean(),
-  criticalDeadlineReason: z.string().trim(),
-  deliveryTimeline: z.string().trim().min(1),
-  projectBudget: z.string().trim().min(1),
+  // Step 11
   contentStatus: z.string().trim().min(1),
   preferredContactChannel: z.string().trim().min(1),
   meetingFrequency: z.string().trim().min(1),
@@ -98,7 +92,6 @@ const onboardingSchema = z.object({
   }
   if (payload.hasDomain && !payload.websiteUrl) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe a URL do dominio.", path: ["websiteUrl"] });
   if (payload.hasSocialMedia && payload.socialMediaNetworks.length === 0) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Selecione pelo menos uma rede social.", path: ["socialMediaNetworks"] });
-  if (payload.hasCriticalDeadline && !payload.criticalDeadlineReason) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Selecione o motivo do prazo critico.", path: ["criticalDeadlineReason"] });
   if (payload.hasHosting && !payload.hostingProvider) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Informe o provedor de hospedagem.", path: ["hostingProvider"] });
 });
 
@@ -168,8 +161,7 @@ export function parseOnboardingRequestPayload(payload: ParsedOnboardingPayload):
       needsWhatsApp: parseBooleanFlag(payload.body.needsWhatsApp),
       needsSeo: parseBooleanFlag(payload.body.needsSeo),
       siteLanguages: parseJsonArray(payload.body.siteLanguages),
-      analyticsRequired: parseJsonArray(payload.body.analyticsRequired),
-      trackingPixels: parseJsonArray(payload.body.trackingPixels),
+
       projectScopeConfig: parseJsonObject(payload.body.projectScopeConfig),
 
       brandingStatus: payload.body.brandingStatus,
@@ -184,11 +176,6 @@ export function parseOnboardingRequestPayload(payload: ParsedOnboardingPayload):
       needsWcagCompliance: parseBooleanFlag(payload.body.needsWcagCompliance),
       needsPostLaunchSupport: parseBooleanFlag(payload.body.needsPostLaunchSupport),
 
-      decisionMaker: payload.body.decisionMaker,
-      hasCriticalDeadline: parseBooleanFlag(payload.body.hasCriticalDeadline),
-      criticalDeadlineReason: payload.body.criticalDeadlineReason ?? "",
-      deliveryTimeline: payload.body.deliveryTimeline,
-      projectBudget: payload.body.projectBudget,
       contentStatus: payload.body.contentStatus,
       preferredContactChannel: payload.body.preferredContactChannel,
       meetingFrequency: payload.body.meetingFrequency,

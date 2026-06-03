@@ -66,8 +66,7 @@ export async function submitOnboardingForm(
   formData.append("needsWhatsApp", data.needsWhatsApp ? "yes" : "no");
   formData.append("needsSeo", data.needsSeo ? "yes" : "no");
   appendArray(formData, "siteLanguages", data.siteLanguages);
-  appendArray(formData, "analyticsRequired", data.analyticsRequired);
-  appendArray(formData, "trackingPixels", data.trackingPixels);
+
 
   // Condicionais por tipo (JSONB)
   const scopeConfig: Record<string, unknown> = {};
@@ -112,12 +111,7 @@ export async function submitOnboardingForm(
   formData.append("needsWcagCompliance", data.needsWcagCompliance ? "yes" : "no");
   formData.append("needsPostLaunchSupport", data.needsPostLaunchSupport ? "yes" : "no");
 
-  // Step 11-12: Cronograma e Anexos
-  formData.append("decisionMaker", data.decisionMaker);
-  formData.append("hasCriticalDeadline", data.hasCriticalDeadline ? "yes" : "no");
-  formData.append("criticalDeadlineReason", data.hasCriticalDeadline ? data.criticalDeadlineReason : "");
-  formData.append("deliveryTimeline", data.deliveryTimeline);
-  formData.append("projectBudget", data.projectBudget);
+  // Step 11: Conteudo e Anexos
   formData.append("contentStatus", data.contentStatus);
   formData.append("preferredContactChannel", data.preferredContactChannel);
   formData.append("meetingFrequency", data.meetingFrequency);

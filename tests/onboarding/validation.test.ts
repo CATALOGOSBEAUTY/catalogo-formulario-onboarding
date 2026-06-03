@@ -17,8 +17,6 @@ describe("parseOnboardingRequestPayload", () => {
     expect(result.projectGoals).toHaveLength(2);
     expect(result.designStyle).toEqual(["minimalist", "tech"]);
     expect(result.brandVoice).toHaveLength(2);
-    expect(result.deliveryTimeline).toBe("standard");
-    expect(result.projectBudget).toBe("tier_2");
     expect(result.files).toHaveLength(1);
   });
 
@@ -87,24 +85,7 @@ describe("parseOnboardingRequestPayload", () => {
     ).toThrow("Dados do formulario invalidos");
   });
 
-  it("rejects hasCriticalDeadline=true without reason", () => {
-    expect(() =>
-      parseOnboardingRequestPayload(
-        buildValidPayload({ body: { hasCriticalDeadline: "yes", criticalDeadlineReason: "" } }),
-      ),
-    ).toThrow("Dados do formulario invalidos");
-  });
 
-  it("accepts hasCriticalDeadline=true with reason", () => {
-    const result = parseOnboardingRequestPayload(
-      buildValidPayload({
-        body: { hasCriticalDeadline: "yes", criticalDeadlineReason: "Lancamento do produto em agosto" },
-      }),
-    );
-
-    expect(result.hasCriticalDeadline).toBe(true);
-    expect(result.criticalDeadlineReason).toBe("Lancamento do produto em agosto");
-  });
 
   it("rejects payload with more than 10 uploaded files", () => {
     const files = Array.from({ length: 11 }, (_, index) => ({

@@ -48,8 +48,7 @@ export function buildValidPayload(
     needsWhatsApp: "yes",
     needsSeo: "yes",
     siteLanguages: JSON.stringify(["Portugues"]),
-    analyticsRequired: JSON.stringify(["Google Analytics 4 (GA4)"]),
-    trackingPixels: JSON.stringify(["Meta Pixel (Facebook/Instagram)"]),
+
     projectScopeConfig: JSON.stringify({
       landingPageCta: "Solicitar Orcamento",
       hasProductVideo: false,
@@ -69,11 +68,6 @@ export function buildValidPayload(
     needsWcagCompliance: "no",
     needsPostLaunchSupport: "yes",
 
-    decisionMaker: "Sou eu mesmo",
-    hasCriticalDeadline: "no",
-    criticalDeadlineReason: "",
-    deliveryTimeline: "standard",
-    projectBudget: "tier_2",
     contentStatus: "Temos parte do conteudo e precisamos de apoio",
     preferredContactChannel: "WhatsApp",
     meetingFrequency: "Reunioes semanais de alinhamento",

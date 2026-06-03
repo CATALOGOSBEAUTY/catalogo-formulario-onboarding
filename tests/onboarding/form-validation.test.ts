@@ -37,9 +37,6 @@ function buildValidState(overrides: Partial<OnboardingFormState> = {}): Onboardi
     designStyle: ["minimalist", "tech"],
     brandVoice: ["Profissional e Tecnico", "Jovem e Moderno"],
 
-    decisionMaker: "Sou eu mesmo",
-    deliveryTimeline: "standard",
-    projectBudget: "tier_2",
 
     contentStatus: "Temos parte do conteudo e precisamos de apoio",
     preferredContactChannel: "WhatsApp",
@@ -203,38 +200,18 @@ describe("getStepValidationError (12 steps)", () => {
     });
   });
 
-  // Step 11 — Prazo e Investimento
-  describe("step 11 — Prazo e Investimento", () => {
+
+  // Step 11 — Conteudo e Anexos
+  describe("step 11 — Conteudo e Anexos", () => {
     it("returns null for a valid step 11", () => {
       expect(getStepValidationError(11, buildValidState())).toBeNull();
     });
-    it("returns error without decisionMaker", () => {
-      expect(getStepValidationError(11, buildValidState({ decisionMaker: "" }))).not.toBeNull();
-    });
-    it("returns error without deliveryTimeline", () => {
-      expect(getStepValidationError(11, buildValidState({ deliveryTimeline: "" }))).not.toBeNull();
-    });
-    it("returns error without projectBudget", () => {
-      expect(getStepValidationError(11, buildValidState({ projectBudget: "" }))).not.toBeNull();
-    });
-    it("returns error when hasCriticalDeadline=true but no reason", () => {
-      expect(
-        getStepValidationError(11, buildValidState({ hasCriticalDeadline: true, criticalDeadlineReason: "" })),
-      ).not.toBeNull();
-    });
-  });
-
-  // Step 12 — Conteudo e Anexos
-  describe("step 12 — Conteudo e Anexos", () => {
-    it("returns null for a valid step 12", () => {
-      expect(getStepValidationError(12, buildValidState())).toBeNull();
-    });
     it("returns error without contentStatus", () => {
-      expect(getStepValidationError(12, buildValidState({ contentStatus: "" }))).not.toBeNull();
+      expect(getStepValidationError(11, buildValidState({ contentStatus: "" }))).not.toBeNull();
     });
     it("returns error without any files", () => {
       expect(
-        getStepValidationError(12, buildValidState({ filesBranding: [], filesReferences: [] })),
+        getStepValidationError(11, buildValidState({ filesBranding: [], filesReferences: [] })),
       ).not.toBeNull();
     });
   });

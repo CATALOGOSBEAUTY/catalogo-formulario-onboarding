@@ -53,13 +53,13 @@ function SelectedFilesList({ title, files }: { title: string; files: File[] }) {
   );
 }
 
-export function Step12_ContentAndFiles({ data, updateData }: Props) {
+export function Step11_ContentAndFiles({ data, updateData }: Props) {
   const totalFiles = data.filesBranding.length + data.filesReferences.length;
 
   return (
     <Card className="mx-auto w-full max-w-3xl">
       <CardHeader>
-        <StepHeader stepNumber={12} title="CONTEÚDO E ANEXOS" description="Status do conteudo, canal de comunicacao e materiais de apoio." />
+        <StepHeader stepNumber={11} title="CONTEÚDO E ANEXOS" description="Status do conteudo, canal de comunicacao e materiais de apoio." />
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
