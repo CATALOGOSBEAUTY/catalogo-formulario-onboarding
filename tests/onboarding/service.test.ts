@@ -3,129 +3,155 @@ import { createOnboardingService } from "../../server/modules/onboarding/service
 import type { AppEnv } from "../../server/config/env";
 import type { OnboardingSubmissionInput } from "../../server/modules/onboarding/types";
 
-function buildEnv(): AppEnv {
-  return {
-    NODE_ENV: "test",
-    PORT: 3001,
-    SUPABASE_URL: "https://example.supabase.co",
-    SUPABASE_ANON_KEY: "anon-key",
-    SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
-    SUPABASE_STORAGE_BUCKET: "onboarding-uploads",
-    EVOLUTION_API_URL: "https://saasevolution.azurewebsites.net",
-    EVOLUTION_API_KEY: "test-api-key",
-    EVOLUTION_INSTANCE_NAME: "diaprao",
-    ONBOARDING_REPORT_GROUP_JID: "120363424441218739@g.us",
-    MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
-  };
-}
-
-function buildSubmission(): OnboardingSubmissionInput {
+function buildValidInput(): OnboardingSubmissionInput {
   return {
     fullName: "Maria Silva",
+    companyName: "Studio Digital Ltda",
+    companySector: "Tecnologia e SaaS",
     cpfCnpj: "123.456.789-00",
     email: "maria@empresa.com",
     commercialContact: "(11) 99999-9999",
-    addressZipcode: "01001-000",
-    addressStreet: "Av. Paulista",
-    addressNumber: "1000",
-    addressNeighborhood: "Bela Vista",
-    addressCity: "Sao Paulo",
-    addressState: "SP",
-    appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
-    cancellationLevel: "Medio",
-    rescheduleLevel: "Alto",
-    schedulingModel: "plataforma_completa",
-    virtualAssistantEnabled: true,
-    virtualAssistantScope: "Todas as opcoes",
-    cancellationFine: "R$ 50,00",
-    rescheduleDetails: "Com 24h de antecedencia",
-    upfrontCost: "50%",
-    hasDomain: true,
-    websiteUrl: "https://empresa.com.br",
-    hostingProvider: "Vercel",
-    services: [
-      {
-        name: "Corte",
-        professionalName: "Joao",
-        duration: "45 minutos",
-        value: "R$ 50,00",
-      },
-    ],
+    currentWebsiteUrl: "",
+    isRemote: true,
+    addressZipcode: "",
+    addressStreet: "",
+    addressNumber: "",
+    addressNeighborhood: "",
+    addressCity: "",
+    addressState: "",
+    primaryGoal: "lead_generation",
+    currentPainPoint: "Site desatualizado.",
+    targetAudience: "Empreendedores jovens.",
+    audienceAgeRange: ["25 a 34 anos"],
+    audienceDigitalBehavior: ["Acessa pelo celular"],
+    competitors: "www.concorrente.com.br",
+    competitorLikes: "",
+    uniqueValueProposition: "Automatizamos processos.",
+    hasSocialMedia: false,
+    socialMediaHandles: "",
+    projectType: "landing_page",
+    projectDescription: "Landing page para captacao de leads.",
+    needsCms: false,
+    needsContactForm: true,
+    needsWhatsApp: true,
+    needsSeo: true,
+    siteLanguages: ["Portugues"],
+    analyticsRequired: [],
+    trackingPixels: [],
+    projectScopeConfig: {},
+    brandingStatus: "partial",
+    designStyle: ["minimalist"],
+    brandVoice: ["Profissional", "Moderno"],
+    designReferences: "",
+    hasDomain: false,
+    websiteUrl: "",
+    hasHosting: false,
+    hostingProvider: "",
+    needsSeoConsulting: false,
+    needsWcagCompliance: false,
+    needsPostLaunchSupport: false,
+    decisionMaker: "Sou eu mesmo",
+    hasCriticalDeadline: false,
+    criticalDeadlineReason: "",
+    deliveryTimeline: "standard",
+    projectBudget: "tier_2",
+    contentStatus: "Temos conteudo",
+    preferredContactChannel: "WhatsApp",
+    meetingFrequency: "Reunioes semanais",
     files: [
       {
-        category: "procedures",
-        originalName: "procedures.jpg",
-        mimeType: "image/jpeg",
-        size: 128,
-        buffer: Buffer.from("procedures"),
-      },
-      {
-        category: "facade",
-        originalName: "facade.jpg",
-        mimeType: "image/jpeg",
-        size: 128,
-        buffer: Buffer.from("facade"),
+        category: "branding",
+        originalName: "logo.png",
+        mimeType: "image/png",
+        size: 2048,
+        buffer: Buffer.from("logo"),
       },
     ],
   };
 }
 
-function jsonResponse(payload: unknown, status = 200) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+function createMockEnv(): AppEnv {
+  return {
+    PORT: 3000,
+    SUPABASE_URL: "https://test.supabase.co",
+    SUPABASE_KEY: "test-key",
+    SUPABASE_STORAGE_BUCKET: "onboarding",
+    EVOLUTION_API_URL: "https://evo.test.io/",
+    EVOLUTION_API_KEY: "evo-key",
+    EVOLUTION_INSTANCE_NAME: "test-instance",
+    ONBOARDING_REPORT_GROUP_JID: "5511999999999@g.us",
+  };
 }
 
-function createSupabaseMock() {
+function createMockSupabase() {
   return {
-    from(table: string) {
-      return {
-        insert: vi.fn().mockResolvedValue({ error: null, table }),
-        update: vi.fn().mockReturnValue({
-          eq: vi.fn().mockResolvedValue({ error: null, table }),
-        }),
-      };
-    },
+    from: vi.fn(() => ({
+      insert: vi.fn().mockResolvedValue({ error: null }),
+      update: vi.fn(() => ({
+        eq: vi.fn().mockResolvedValue({ error: null }),
+      })),
+    })),
     storage: {
-      from: vi.fn().mockReturnValue({
+      from: vi.fn(() => ({
         upload: vi.fn().mockResolvedValue({ error: null }),
-      }),
+      })),
     },
   };
 }
 
 describe("createOnboardingService", () => {
-  it("sends only one organized Excel report to the configured whatsapp group", async () => {
-    const env = buildEnv();
-    const fetchMock = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(jsonResponse({ key: { id: "excel-report" } }));
+  it("submits successfully and returns sent whatsapp status", async () => {
+    const env = createMockEnv();
+    const supabase = createMockSupabase();
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve("") });
 
     const service = createOnboardingService({
       env,
-      supabase: createSupabaseMock() as never,
-      fetchImpl: fetchMock,
+      supabase: supabase as any,
+      fetchImpl: fetchImpl as any,
     });
 
-    await service.submit(buildSubmission());
+    const result = await service.submit(buildValidInput());
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.submissionId).toBeDefined();
+    expect(result.whatsappStatus).toBe("sent");
+    expect(result.warning).toBeUndefined();
+    expect(supabase.from).toHaveBeenCalled();
+    expect(fetchImpl).toHaveBeenCalled();
+  });
 
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/message/sendMedia/diaprao");
-    expect(String(fetchMock.mock.calls[0]?.[0])).not.toContain("/message/sendText/");
+  it("returns failed whatsapp status when Evolution API fails", async () => {
+    const env = createMockEnv();
+    const supabase = createMockSupabase();
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: false, text: () => Promise.resolve("API Error") });
 
-    const reportRequestInit = fetchMock.mock.calls[0]?.[1];
-    const reportBody = JSON.parse(String(reportRequestInit?.body));
+    const service = createOnboardingService({
+      env,
+      supabase: supabase as any,
+      fetchImpl: fetchImpl as any,
+    });
 
-    expect(reportBody.number).toBe("120363424441218739@g.us");
-    expect(reportBody.mediatype).toBe("document");
-    expect(reportBody.mimetype).toBe("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    expect(reportBody.fileName).toMatch(/onboarding-maria-silva\.xlsx/);
-    expect(reportBody.caption).toBeUndefined();
-    expect(typeof reportBody.media).toBe("string");
-    expect(reportBody.media.length).toBeGreaterThan(100);
+    const result = await service.submit(buildValidInput());
+
+    expect(result.whatsappStatus).toBe("failed");
+    expect(result.warning).toContain("Falha ao enviar planilha via Evolution");
+  });
+
+  it("throws when supabase insert fails", async () => {
+    const env = createMockEnv();
+    const supabase = {
+      from: vi.fn(() => ({
+        insert: vi.fn().mockResolvedValue({ error: { message: "DB Error" } }),
+      })),
+      storage: { from: vi.fn() },
+    };
+
+    const service = createOnboardingService({
+      env,
+      supabase: supabase as any,
+      fetchImpl: vi.fn() as any,
+    });
+
+    await expect(service.submit(buildValidInput())).rejects.toThrow("Falha ao salvar submissao: DB Error");
   });
 });

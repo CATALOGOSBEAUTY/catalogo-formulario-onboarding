@@ -1,356 +1,183 @@
 import { describe, expect, it } from "vitest";
 import { parseOnboardingRequestPayload } from "../../server/modules/onboarding/validation";
+import { buildValidPayload } from "./test-helpers";
 
 describe("parseOnboardingRequestPayload", () => {
-  it("parses form fields, json arrays and file metadata into normalized input", () => {
-    const result = parseOnboardingRequestPayload({
-      body: {
-        fullName: "Maria Silva",
-        cpf: "123.456.789-00",
-        email: "maria@empresa.com",
-        commercialContact: "(11) 99999-9999",
-        addressZipcode: "01001-000",
-        addressStreet: "Av. Paulista",
-        addressNumber: "1000",
-        addressNeighborhood: "Bela Vista",
-        addressCity: "Sao Paulo",
-        addressState: "SP",
-        appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
-        cancellationLevel: "Medio",
-        rescheduleLevel: "Alto",
-        schedulingModel: "plataforma_completa",
-        virtualAssistantEnabled: "yes",
-        virtualAssistantScope: "Atendimento Inicial",
-        cancellationFine: "R$ 50,00",
-        rescheduleDetails: "Com 24h de antecedencia",
-        upfrontCost: "50%",
-        hasDomain: "yes",
-        websiteUrl: "https://empresa.com.br",
-        hostingProvider: "Vercel",
-        services: JSON.stringify([
-          {
-            name: "Corte",
-            professionalName: "Joao",
-            duration: "45 minutos",
-            value: "R$ 50,00",
-          },
-        ]),
-      },
-      files: [
-        {
-          category: "procedures",
-          originalName: "antes.jpg",
-          mimeType: "image/jpeg",
-          size: 2048,
-          buffer: Buffer.from("a"),
+  it("parses a complete valid payload for a remote company with landing page", () => {
+    const result = parseOnboardingRequestPayload(buildValidPayload());
+
+    expect(result.fullName).toBe("Maria Silva");
+    expect(result.companyName).toBe("Studio Digital Ltda");
+    expect(result.isRemote).toBe(true);
+    expect(result.primaryGoal).toBe("lead_generation");
+    expect(result.audienceAgeRange).toHaveLength(1);
+    expect(result.projectType).toBe("landing_page");
+    expect(result.designStyle).toEqual(["minimalist", "tech"]);
+    expect(result.brandVoice).toHaveLength(2);
+    expect(result.deliveryTimeline).toBe("standard");
+    expect(result.projectBudget).toBe("tier_2");
+    expect(result.files).toHaveLength(1);
+  });
+
+  it("allows remote company without address fields", () => {
+    const result = parseOnboardingRequestPayload(
+      buildValidPayload({
+        body: { isRemote: "yes", addressZipcode: "", addressStreet: "", addressCity: "", addressState: "" },
+      }),
+    );
+
+    expect(result.isRemote).toBe(true);
+    expect(result.addressZipcode).toBe("");
+  });
+
+  it("rejects non-remote company without required address fields", () => {
+    expect(() =>
+      parseOnboardingRequestPayload(
+        buildValidPayload({
+          body: { isRemote: "no", addressZipcode: "", addressStreet: "", addressCity: "", addressState: "" },
+        }),
+      ),
+    ).toThrow("Dados do formulario invalidos");
+  });
+
+  it("accepts non-remote company with complete address", () => {
+    const result = parseOnboardingRequestPayload(
+      buildValidPayload({
+        body: {
+          isRemote: "no",
+          addressZipcode: "01001-000",
+          addressStreet: "Av. Paulista",
+          addressNumber: "1000",
+          addressNeighborhood: "Bela Vista",
+          addressCity: "Sao Paulo",
+          addressState: "SP",
         },
-        {
-          category: "facade",
-          originalName: "fachada.jpg",
-          mimeType: "image/jpeg",
-          size: 2048,
-          buffer: Buffer.from("b"),
-        },
-      ],
-    });
+      }),
+    );
+
+    expect(result.isRemote).toBe(false);
+    expect(result.addressCity).toBe("Sao Paulo");
+  });
+
+  it("rejects hasDomain=true without websiteUrl", () => {
+    expect(() =>
+      parseOnboardingRequestPayload(
+        buildValidPayload({ body: { hasDomain: "yes", websiteUrl: "" } }),
+      ),
+    ).toThrow("Dados do formulario invalidos");
+  });
+
+  it("accepts hasDomain=true with websiteUrl", () => {
+    const result = parseOnboardingRequestPayload(
+      buildValidPayload({ body: { hasDomain: "yes", websiteUrl: "https://site.com" } }),
+    );
 
     expect(result.hasDomain).toBe(true);
-    expect(result.appointmentFlow).toBe("Alto - 31 a 80 agendamentos por dia");
-    expect(result.virtualAssistantEnabled).toBe(true);
-    expect(result.virtualAssistantScope).toBe("Atendimento Inicial");
-    expect(result.services).toHaveLength(1);
-    expect(result.services[0]?.professionalName).toBe("Joao");
-    expect(result.files).toHaveLength(2);
+    expect(result.websiteUrl).toBe("https://site.com");
   });
 
-  it("accepts empty website fields when the client does not have a site or domain", () => {
-    const result = parseOnboardingRequestPayload({
-      body: {
-        fullName: "Maria Silva",
-        cpf: "123.456.789-00",
-        email: "maria@empresa.com",
-        commercialContact: "(11) 99999-9999",
-        addressZipcode: "01001-000",
-        addressStreet: "Av. Paulista",
-        addressNumber: "1000",
-        addressNeighborhood: "Bela Vista",
-        addressCity: "Sao Paulo",
-        addressState: "SP",
-        appointmentFlow: "Medio - 11 a 30 agendamentos por dia",
-        cancellationLevel: "Baixo",
-        rescheduleLevel: "Medio",
-        schedulingModel: "plataforma_completa",
-        cancellationFine: "US$ 50.00",
-        rescheduleDetails: "Com 24h de antecedencia",
-        upfrontCost: "20%",
-        hasDomain: "no",
-        websiteUrl: "",
-        hostingProvider: "",
-        services: JSON.stringify([
-          {
-            name: "Corte",
-            professionalName: "Joao",
-            duration: "1 hora",
-            value: "US$ 50.00",
-          },
-        ]),
-      },
-      files: [
-        {
-          category: "procedures",
-          originalName: "antes.jpg",
-          mimeType: "image/jpeg",
-          size: 2048,
-          buffer: Buffer.from("a"),
-        },
-        {
-          category: "facade",
-          originalName: "fachada.jpg",
-          mimeType: "image/jpeg",
-          size: 2048,
-          buffer: Buffer.from("b"),
-        },
-      ],
-    });
-
-    expect(result.hasDomain).toBe(false);
-    expect(result.websiteUrl).toBe("");
-    expect(result.hostingProvider).toBe("");
+  it("rejects hasSocialMedia=true without handles", () => {
+    expect(() =>
+      parseOnboardingRequestPayload(
+        buildValidPayload({ body: { hasSocialMedia: "yes", socialMediaHandles: "" } }),
+      ),
+    ).toThrow("Dados do formulario invalidos");
   });
 
-  it("accepts more than 100 service entries in the backend payload", () => {
-    const services = Array.from({ length: 101 }, (_, index) => ({
-      name: `Servico ${index + 1}`,
-      professionalName: `Profissional ${index + 1}`,
-      duration: "45 minutos",
-      value: "R$ 150,00",
+  it("rejects hasCriticalDeadline=true without reason", () => {
+    expect(() =>
+      parseOnboardingRequestPayload(
+        buildValidPayload({ body: { hasCriticalDeadline: "yes", criticalDeadlineReason: "" } }),
+      ),
+    ).toThrow("Dados do formulario invalidos");
+  });
+
+  it("accepts hasCriticalDeadline=true with reason", () => {
+    const result = parseOnboardingRequestPayload(
+      buildValidPayload({
+        body: { hasCriticalDeadline: "yes", criticalDeadlineReason: "Lancamento do produto em agosto" },
+      }),
+    );
+
+    expect(result.hasCriticalDeadline).toBe(true);
+    expect(result.criticalDeadlineReason).toBe("Lancamento do produto em agosto");
+  });
+
+  it("rejects payload with more than 10 uploaded files", () => {
+    const files = Array.from({ length: 11 }, (_, index) => ({
+      category: (index < 6 ? "branding" : "references") as "branding" | "references",
+      originalName: `file-${index}.jpg`,
+      mimeType: "image/jpeg",
+      size: 1024,
+      buffer: Buffer.from(String(index)),
     }));
 
-    const result = parseOnboardingRequestPayload({
-      body: {
-        fullName: "Maria Silva",
-        cpf: "123.456.789-00",
-        email: "maria@empresa.com",
-        commercialContact: "(11) 99999-9999",
-        addressZipcode: "01001-000",
-        addressStreet: "Av. Paulista",
-        addressNumber: "1000",
-        addressNeighborhood: "Bela Vista",
-        addressCity: "Sao Paulo",
-        addressState: "SP",
-        appointmentFlow: "Muito alto - mais de 80 agendamentos por dia",
-        cancellationLevel: "Alto",
-        rescheduleLevel: "Medio",
-        schedulingModel: "plataforma_completa",
-        cancellationFine: "R$ 50,00",
-        rescheduleDetails: "Com 24h de antecedencia",
-        upfrontCost: "20%",
-        hasDomain: "no",
-        websiteUrl: "",
-        hostingProvider: "",
-        services: JSON.stringify(services),
-      },
-      files: [
-        {
-          category: "procedures",
-          originalName: "antes.jpg",
-          mimeType: "image/jpeg",
-          size: 2048,
-          buffer: Buffer.from("a"),
-        },
-        {
-          category: "facade",
-          originalName: "fachada.jpg",
-          mimeType: "image/jpeg",
-          size: 2048,
-          buffer: Buffer.from("b"),
-        },
-      ],
-    });
+    expect(() =>
+      parseOnboardingRequestPayload(buildValidPayload({ files })),
+    ).toThrow("Dados do formulario invalidos");
+  });
 
-    expect(result.services).toHaveLength(101);
+  it("rejects payload without any files", () => {
+    expect(() =>
+      parseOnboardingRequestPayload(buildValidPayload({ files: [] })),
+    ).toThrow("Dados do formulario invalidos");
   });
 
   it("rejects payload without required identity fields", () => {
     expect(() =>
-      parseOnboardingRequestPayload({
-        body: {
-          fullName: "",
-          cpf: "",
-          email: "",
-          commercialContact: "",
-          addressZipcode: "",
-          addressStreet: "",
-          addressNumber: "",
-          addressNeighborhood: "",
-          addressCity: "",
-          addressState: "",
-          appointmentFlow: "",
-          cancellationLevel: "",
-          rescheduleLevel: "",
-          schedulingModel: "",
-          cancellationFine: "",
-          rescheduleDetails: "",
-          upfrontCost: "",
-          hasDomain: "no",
-          websiteUrl: "",
-          hostingProvider: "",
-          services: "[]",
-        },
-        files: [],
-      }),
+      parseOnboardingRequestPayload(
+        buildValidPayload({ body: { fullName: "", companyName: "", email: "" } }),
+      ),
     ).toThrow("Dados do formulario invalidos");
   });
 
-  it("rejects address fields with invalid numeric format", () => {
+  it("rejects project description shorter than 30 characters", () => {
     expect(() =>
-      parseOnboardingRequestPayload({
-        body: {
-          fullName: "Maria Silva",
-          cpf: "123.456.789-00",
-          email: "maria@empresa.com",
-          commercialContact: "(11) 99999-9999",
-          addressZipcode: "0100A-000",
-          addressStreet: "Av. Paulista",
-          addressNumber: "1000A",
-          addressNeighborhood: "Bela Vista",
-          addressCity: "Sao Paulo",
-          addressState: "SP",
-          appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
-          cancellationLevel: "Medio",
-          rescheduleLevel: "Alto",
-          schedulingModel: "plataforma_completa",
-          cancellationFine: "R$ 50,00",
-          rescheduleDetails: "Com 24h de antecedencia",
-          upfrontCost: "20%",
-          hasDomain: "yes",
-          websiteUrl: "https://empresa.com.br",
-          hostingProvider: "Vercel",
-          services: JSON.stringify([
-            {
-              name: "Corte",
-              professionalName: "Joao",
-              duration: "45 minutos",
-              value: "R$ 50,00",
-            },
-          ]),
-        },
-        files: [
-          {
-            category: "procedures",
-            originalName: "antes.jpg",
-            mimeType: "image/jpeg",
-            size: 2048,
-            buffer: Buffer.from("a"),
-          },
-          {
-            category: "facade",
-            originalName: "fachada.jpg",
-            mimeType: "image/jpeg",
-            size: 2048,
-            buffer: Buffer.from("b"),
-          },
-        ],
-      }),
+      parseOnboardingRequestPayload(
+        buildValidPayload({ body: { projectDescription: "muito curto" } }),
+      ),
     ).toThrow("Dados do formulario invalidos");
   });
 
-  it("rejects virtual assistant enabled without selected scope", () => {
+  it("rejects design style with more than 3 items", () => {
     expect(() =>
-      parseOnboardingRequestPayload({
-        body: {
-          fullName: "Maria Silva",
-          cpf: "123.456.789-00",
-          email: "maria@empresa.com",
-          commercialContact: "(11) 99999-9999",
-          addressZipcode: "01001-000",
-          addressStreet: "Av. Paulista",
-          addressNumber: "1000",
-          addressNeighborhood: "Bela Vista",
-          addressCity: "Sao Paulo",
-          addressState: "SP",
-          appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
-          cancellationLevel: "Medio",
-          rescheduleLevel: "Alto",
-          schedulingModel: "plataforma_completa",
-          virtualAssistantEnabled: "yes",
-          virtualAssistantScope: "",
-          cancellationFine: "R$ 50,00",
-          rescheduleDetails: "Com 24h de antecedencia",
-          upfrontCost: "20%",
-          hasDomain: "yes",
-          websiteUrl: "https://empresa.com.br",
-          hostingProvider: "Vercel",
-          services: JSON.stringify([
-            {
-              name: "Corte",
-              professionalName: "Joao",
-              duration: "45 minutos",
-              value: "R$ 50,00",
-            },
-          ]),
-        },
-        files: [
-          {
-            category: "procedures",
-            originalName: "antes.jpg",
-            mimeType: "image/jpeg",
-            size: 2048,
-            buffer: Buffer.from("a"),
-          },
-          {
-            category: "facade",
-            originalName: "fachada.jpg",
-            mimeType: "image/jpeg",
-            size: 2048,
-            buffer: Buffer.from("b"),
-          },
-        ],
-      }),
+      parseOnboardingRequestPayload(
+        buildValidPayload({
+          body: { designStyle: JSON.stringify(["minimalist", "tech", "corporate", "luxury"]) },
+        }),
+      ),
     ).toThrow("Dados do formulario invalidos");
   });
 
-  it("rejects payload with more than 10 uploaded images", () => {
+  it("rejects brand voice with less than 2 items", () => {
     expect(() =>
-      parseOnboardingRequestPayload({
+      parseOnboardingRequestPayload(
+        buildValidPayload({
+          body: { brandVoice: JSON.stringify(["Profissional e Tecnico"]) },
+        }),
+      ),
+    ).toThrow("Dados do formulario invalidos");
+  });
+
+  it("parses projectScopeConfig as JSON object", () => {
+    const config = { platformType: "SaaS", platformFeatures: ["Login", "Dashboard"] };
+    const result = parseOnboardingRequestPayload(
+      buildValidPayload({
         body: {
-          fullName: "Maria Silva",
-          cpf: "123.456.789-00",
-          email: "maria@empresa.com",
-          commercialContact: "(11) 99999-9999",
-          addressZipcode: "01001-000",
-          addressStreet: "Av. Paulista",
-          addressNumber: "1000",
-          addressNeighborhood: "Bela Vista",
-          addressCity: "Sao Paulo",
-          addressState: "SP",
-          appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
-          cancellationLevel: "Medio",
-          rescheduleLevel: "Alto",
-          schedulingModel: "plataforma_completa",
-          cancellationFine: "R$ 50,00",
-          rescheduleDetails: "Com 24h de antecedencia",
-          upfrontCost: "20%",
-          hasDomain: "yes",
-          websiteUrl: "https://empresa.com.br",
-          hostingProvider: "Vercel",
-          services: JSON.stringify([
-            {
-              name: "Corte",
-              professionalName: "Joao",
-              duration: "45 minutos",
-              value: "R$ 50,00",
-            },
-          ]),
+          projectType: "platform",
+          projectScopeConfig: JSON.stringify(config),
         },
-        files: Array.from({ length: 11 }, (_, index) => ({
-          category: index < 6 ? "procedures" : "facade",
-          originalName: `imagem-${index}.jpg`,
-          mimeType: "image/jpeg",
-          size: 1024,
-          buffer: Buffer.from(String(index)),
-        })),
       }),
+    );
+
+    expect(result.projectScopeConfig).toEqual(config);
+  });
+
+  it("rejects hasHosting=true without hostingProvider", () => {
+    expect(() =>
+      parseOnboardingRequestPayload(
+        buildValidPayload({ body: { hasHosting: "yes", hostingProvider: "" } }),
+      ),
     ).toThrow("Dados do formulario invalidos");
   });
 });

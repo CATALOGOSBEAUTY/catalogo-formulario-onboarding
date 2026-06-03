@@ -96,26 +96,6 @@ async function uploadFiles(
   return uploadedFiles;
 }
 
-function deriveProfessionalsFromServices(input: OnboardingSubmissionInput) {
-  const grouped = new Map<string, Set<string>>();
-
-  input.services.forEach((service) => {
-    const current = grouped.get(service.professionalName) || new Set<string>();
-    current.add(service.name);
-    grouped.set(service.professionalName, current);
-  });
-
-  return Array.from(grouped.entries()).map(([name, services]) => ({
-    name,
-    role: "Profissional vinculado",
-    serviceConfig: Array.from(services).join(", "),
-  }));
-}
-
-function appendContext(value: string, label: string, context: string) {
-  return `${value}\n${label}: ${context}`;
-}
-
 async function sendWhatsAppWorkbookMessage(
   env: AppEnv,
   fetchImpl: typeof fetch,
@@ -123,7 +103,7 @@ async function sendWhatsAppWorkbookMessage(
   input: OnboardingSubmissionInput,
 ) {
   const workbook = await buildOnboardingWorkbook(input);
-  const fileName = `onboarding-${sanitizeSegment(input.fullName || "cliente")}.xlsx`;
+  const fileName = `briefing-${sanitizeSegment(input.companyName || input.fullName || "cliente")}.xlsx`;
   const response = await fetchImpl(
     `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendMedia/${env.EVOLUTION_INSTANCE_NAME}`,
     {
@@ -158,36 +138,63 @@ export function createOnboardingService({
       const { error: submissionError } = await supabase.from("onboarding_submissions").insert({
         id: submissionId,
         full_name: input.fullName,
+        company_name: input.companyName,
+        company_sector: input.companySector,
         cpf_cnpj: input.cpfCnpj,
         email: input.email,
         commercial_contact: input.commercialContact,
-        address_zipcode: input.addressZipcode,
-        address_street: input.addressStreet,
-        address_number: input.addressNumber,
-        address_neighborhood: input.addressNeighborhood,
-        scheduling_model: appendContext(
-          appendContext(
-            input.schedulingModel,
-            "Fluxo de pessoas que agendam",
-            input.appointmentFlow,
-          ),
-          "Assessora virtual para WhatsApp",
-          input.virtualAssistantEnabled ? input.virtualAssistantScope : "Nao solicitada",
-        ),
-        cancellation_fine: appendContext(
-          input.cancellationFine,
-          "Nivel de cancelamento",
-          input.cancellationLevel,
-        ),
-        reschedule_details: appendContext(
-          input.rescheduleDetails,
-          "Nivel de reagendamento",
-          input.rescheduleLevel,
-        ),
-        upfront_cost: input.upfrontCost,
+        current_website_url: input.currentWebsiteUrl || null,
+        is_remote: input.isRemote,
+        address_zipcode: input.isRemote ? null : input.addressZipcode,
+        address_street: input.isRemote ? null : input.addressStreet,
+        address_number: input.isRemote ? null : input.addressNumber,
+        address_neighborhood: input.isRemote ? null : input.addressNeighborhood,
+        address_city: input.isRemote ? null : (input.addressCity || null),
+        address_state: input.isRemote ? null : (input.addressState || null),
+
+        primary_goal: input.primaryGoal,
+        current_pain_point: input.currentPainPoint,
+        target_audience: input.targetAudience,
+        audience_age_range: input.audienceAgeRange,
+        audience_behavior: input.audienceDigitalBehavior,
+        competitors: input.competitors,
+        competitor_likes: input.competitorLikes || null,
+        unique_value_prop: input.uniqueValueProposition,
+        has_social_media: input.hasSocialMedia,
+        social_media_handles: input.hasSocialMedia ? input.socialMediaHandles : null,
+
+        project_type: input.projectType,
+        project_description: input.projectDescription,
+        needs_cms: input.needsCms,
+        needs_contact_form: input.needsContactForm,
+        needs_whatsapp: input.needsWhatsApp,
+        needs_seo: input.needsSeo,
+        site_languages: input.siteLanguages,
+        analytics_required: input.analyticsRequired,
+        tracking_pixels: input.trackingPixels,
+        project_scope_config: input.projectScopeConfig,
+
+        branding_status: input.brandingStatus,
+        design_style: input.designStyle,
+        brand_voice: input.brandVoice,
+        design_references: input.designReferences || null,
         has_domain: input.hasDomain,
-        website_url: input.websiteUrl,
-        hosting_provider: input.hostingProvider,
+        website_url: input.hasDomain ? input.websiteUrl : null,
+        has_hosting: input.hasHosting,
+        hosting_provider: input.hasHosting ? input.hostingProvider : null,
+        needs_seo_consulting: input.needsSeoConsulting,
+        needs_wcag: input.needsWcagCompliance,
+        needs_post_support: input.needsPostLaunchSupport,
+
+        decision_maker: input.decisionMaker,
+        has_critical_deadline: input.hasCriticalDeadline,
+        critical_deadline_reason: input.hasCriticalDeadline ? input.criticalDeadlineReason : null,
+        delivery_timeline: input.deliveryTimeline,
+        project_budget: input.projectBudget,
+        content_status: input.contentStatus,
+        preferred_contact: input.preferredContactChannel,
+        meeting_frequency: input.meetingFrequency,
+
         whatsapp_status: "pending",
         submitted_at: now,
         created_at: now,
@@ -198,6 +205,7 @@ export function createOnboardingService({
         throw new Error(`Falha ao salvar submissao: ${submissionError.message}`);
       }
 
+      // Upload files
       const uploadedFiles = await uploadFiles(
         supabase,
         env.SUPABASE_STORAGE_BUCKET,
@@ -217,37 +225,7 @@ export function createOnboardingService({
         }
       }
 
-      const { error: servicesError } = await supabase.from("onboarding_services").insert(
-        input.services.map((service, index) => ({
-          id: randomUUID(),
-          submission_id: submissionId,
-          name: service.name,
-          duration: service.duration,
-          value: service.value,
-          position: index,
-        })),
-      );
-
-      if (servicesError) {
-        throw new Error(`Falha ao salvar servicos: ${servicesError.message}`);
-      }
-
-      const derivedProfessionals = deriveProfessionalsFromServices(input);
-      const { error: professionalsError } = await supabase.from("onboarding_professionals").insert(
-        derivedProfessionals.map((professional, index) => ({
-          id: randomUUID(),
-          submission_id: submissionId,
-          name: professional.name,
-          role: professional.role,
-          service_config: professional.serviceConfig,
-          position: index,
-        })),
-      );
-
-      if (professionalsError) {
-        throw new Error(`Falha ao salvar profissionais: ${professionalsError.message}`);
-      }
-
+      // Send WhatsApp workbook
       try {
         const destinationNumber = resolveReportDestinationNumber(env, input);
         await sendWhatsAppWorkbookMessage(env, fetchImpl, destinationNumber, input);

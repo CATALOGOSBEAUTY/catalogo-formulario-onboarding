@@ -1,4 +1,4 @@
-export type OnboardingFileCategory = "procedures" | "facade";
+export type OnboardingFileCategory = "branding" | "references";
 
 export interface OnboardingUploadedFile {
   category: OnboardingFileCategory;
@@ -8,37 +8,70 @@ export interface OnboardingUploadedFile {
   buffer: Buffer;
 }
 
-export interface OnboardingServiceItemInput {
-  name: string;
-  professionalName: string;
-  duration: string;
-  value: string;
-}
-
 export interface OnboardingSubmissionInput {
+  // Passo 1: Identidade Comercial
   fullName: string;
+  companyName: string;
+  companySector: string;
   cpfCnpj: string;
   email: string;
   commercialContact: string;
+  currentWebsiteUrl: string;
+  isRemote: boolean;
   addressZipcode: string;
   addressStreet: string;
   addressNumber: string;
   addressNeighborhood: string;
   addressCity: string;
   addressState: string;
-  appointmentFlow: string;
-  cancellationLevel: string;
-  rescheduleLevel: string;
-  schedulingModel: string;
-  virtualAssistantEnabled: boolean;
-  virtualAssistantScope: string;
-  cancellationFine: string;
-  rescheduleDetails: string;
-  upfrontCost: string;
+
+  // Passo 2: Contexto Estrategico
+  primaryGoal: string;
+  currentPainPoint: string;
+  targetAudience: string;
+  audienceAgeRange: string[];
+  audienceDigitalBehavior: string[];
+  competitors: string;
+  competitorLikes: string;
+  uniqueValueProposition: string;
+  hasSocialMedia: boolean;
+  socialMediaHandles: string;
+
+  // Passo 3: Tipo de Projeto e Escopo
+  projectType: string;
+  projectDescription: string;
+  needsCms: boolean;
+  needsContactForm: boolean;
+  needsWhatsApp: boolean;
+  needsSeo: boolean;
+  siteLanguages: string[];
+  analyticsRequired: string[];
+  trackingPixels: string[];
+  projectScopeConfig: Record<string, unknown>;
+
+  // Passo 4: Design, Branding e Infra
+  brandingStatus: string;
+  designStyle: string[];
+  brandVoice: string[];
+  designReferences: string;
   hasDomain: boolean;
   websiteUrl: string;
+  hasHosting: boolean;
   hostingProvider: string;
-  services: OnboardingServiceItemInput[];
+  needsSeoConsulting: boolean;
+  needsWcagCompliance: boolean;
+  needsPostLaunchSupport: boolean;
+
+  // Passo 5: Cronograma, Budget e Anexos
+  decisionMaker: string;
+  hasCriticalDeadline: boolean;
+  criticalDeadlineReason: string;
+  deliveryTimeline: string;
+  projectBudget: string;
+  contentStatus: string;
+  preferredContactChannel: string;
+  meetingFrequency: string;
+
   files: OnboardingUploadedFile[];
 }
 

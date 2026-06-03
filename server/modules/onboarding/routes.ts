@@ -8,26 +8,26 @@ const upload = multer({
 });
 
 function normalizeUploadedFiles(files: {
-  photosProcedures?: Express.Multer.File[];
-  photosFacade?: Express.Multer.File[];
+  filesBranding?: Express.Multer.File[];
+  filesReferences?: Express.Multer.File[];
 }): OnboardingUploadedFile[] {
-  const procedures = (files.photosProcedures || []).map((file) => ({
-    category: "procedures" as const,
+  const branding = (files.filesBranding || []).map((file) => ({
+    category: "branding" as const,
     originalName: file.originalname,
     mimeType: file.mimetype,
     size: file.size,
     buffer: file.buffer,
   }));
 
-  const facade = (files.photosFacade || []).map((file) => ({
-    category: "facade" as const,
+  const references = (files.filesReferences || []).map((file) => ({
+    category: "references" as const,
     originalName: file.originalname,
     mimeType: file.mimetype,
     size: file.size,
     buffer: file.buffer,
   }));
 
-  return [...procedures, ...facade];
+  return [...branding, ...references];
 }
 
 export function createOnboardingRouter(onboardingService: OnboardingService) {
@@ -36,15 +36,15 @@ export function createOnboardingRouter(onboardingService: OnboardingService) {
   router.post(
     "/onboarding-submissions",
     upload.fields([
-      { name: "photosProcedures", maxCount: 10 },
-      { name: "photosFacade", maxCount: 10 },
+      { name: "filesBranding", maxCount: 10 },
+      { name: "filesReferences", maxCount: 10 },
     ]),
     async (req, res) => {
       try {
         const files = normalizeUploadedFiles(
           (req.files as {
-            photosProcedures?: Express.Multer.File[];
-            photosFacade?: Express.Multer.File[];
+            filesBranding?: Express.Multer.File[];
+            filesReferences?: Express.Multer.File[];
           }) || {},
         );
 

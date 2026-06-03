@@ -2,154 +2,221 @@ import { describe, expect, it } from "vitest";
 import { getStepValidationError } from "../../src/modules/OnboardingForm/validation";
 import type { OnboardingFormState } from "../../src/modules/OnboardingForm/types";
 
-function buildState(overrides: Partial<OnboardingFormState> = {}): OnboardingFormState {
+function buildValidState(overrides: Partial<OnboardingFormState> = {}): OnboardingFormState {
   return {
     fullName: "Maria Silva",
-    cpf: "123.456.789-00",
+    companyName: "Studio Digital Ltda",
+    companySector: "Tecnologia e SaaS",
+    cpfCnpj: "123.456.789-00",
     email: "maria@empresa.com",
     commercialContact: "(11) 99999-9999",
-    addressZipcode: "01001-000",
-    addressStreet: "Av. Paulista",
-    addressNumber: "1000",
-    addressNeighborhood: "Bela Vista",
-    addressCity: "Sao Paulo",
-    addressState: "SP",
-    services: [],
-    appointmentFlow: "Alto - 31 a 80 agendamentos por dia",
-    cancellationLevel: "Medio",
-    rescheduleLevel: "Alto",
-    schedulingModel: "plataforma_completa",
-    virtualAssistantEnabled: "no",
-    virtualAssistantScope: "",
-    cancellationFineAmount: "50",
-    cancellationFineUnit: "BRL",
-    rescheduleDetails: "Com 24h de antecedencia",
-    upfrontCostAmount: "50",
-    upfrontCostUnit: "PERCENT",
-    photosProcedures: [],
-    photosFacade: [],
-    hasDomain: "yes",
-    websiteUrl: "https://empresa.com.br",
-    hostingProvider: "Vercel",
+    currentWebsiteUrl: "",
+    isRemote: true,
+    addressZipcode: "",
+    addressStreet: "",
+    addressNumber: "",
+    addressNeighborhood: "",
+    addressCity: "",
+    addressState: "",
+
+    primaryGoal: "lead_generation",
+    currentPainPoint: "O site atual esta desatualizado e nao converte visitantes em clientes.",
+    targetAudience: "Empreendedores de 25 a 40 anos que buscam automatizar processos comerciais.",
+    audienceAgeRange: ["25 a 34 anos (Millennials)"],
+    audienceDigitalBehavior: ["Acessa principalmente pelo celular"],
+    competitors: "www.concorrente1.com.br",
+    competitorLikes: "",
+    uniqueValueProposition: "Automatizamos processos comerciais com IA.",
+    hasSocialMedia: false,
+    socialMediaHandles: "",
+
+    projectType: "landing_page",
+    projectDescription: "Pagina de captacao de leads para novo produto SaaS de automacao comercial que ajuda empresas.",
+    needsCms: false,
+    needsContactForm: true,
+    needsWhatsApp: true,
+    needsSeo: true,
+    siteLanguages: ["Portugues"],
+    analyticsRequired: [],
+    trackingPixels: [],
+    landingPageCta: "Solicitar Orcamento",
+    hasProductVideo: false,
+    leadCaptureMethod: "Ambos",
+    leadDestination: "WhatsApp",
+    websitePages: [],
+    hasPortfolio: false,
+    needsTestimonials: false,
+    needsAboutPage: true,
+    productVolume: "",
+    ecommercePlatform: "",
+    paymentGateways: [],
+    salesModels: [],
+    needsShippingIntegration: false,
+    needsCoupons: false,
+    needsProductReviews: false,
+    platformType: "",
+    platformUserTypes: [],
+    platformFeatures: [],
+    needsMobileApp: false,
+    revenueModel: "",
+    hasLegacySystem: false,
+
+    brandingStatus: "partial",
+    designStyle: ["minimalist", "tech"],
+    brandVoice: ["Profissional e Tecnico", "Jovem e Moderno"],
+    designReferences: "",
+    hasDomain: false,
+    websiteUrl: "",
+    hasHosting: false,
+    hostingProvider: "",
+    needsSeoConsulting: false,
+    needsWcagCompliance: false,
+    needsPostLaunchSupport: false,
+
+    decisionMaker: "Sou eu mesmo",
+    hasCriticalDeadline: false,
+    criticalDeadlineReason: "",
+    deliveryTimeline: "standard",
+    projectBudget: "tier_2",
+    contentStatus: "Temos parte do conteudo e precisamos de apoio",
+    preferredContactChannel: "WhatsApp",
+    meetingFrequency: "Reunioes semanais de alinhamento",
+    filesBranding: [new File(["content"], "logo.png", { type: "image/png" })],
+    filesReferences: [],
     ...overrides,
   };
 }
 
 describe("getStepValidationError", () => {
-  it("blocks leaving step 2 when no linked service was added", () => {
-    const error = getStepValidationError(2, buildState());
+  describe("step 1 — Identidade Comercial", () => {
+    it("returns null for a valid step 1", () => {
+      expect(getStepValidationError(1, buildValidState())).toBeNull();
+    });
 
-    expect(error).toBe("Adicione pelo menos um servico antes de continuar.");
+    it("returns error without fullName", () => {
+      expect(getStepValidationError(1, buildValidState({ fullName: "" }))).not.toBeNull();
+    });
+
+    it("returns error without companyName", () => {
+      expect(getStepValidationError(1, buildValidState({ companyName: "" }))).not.toBeNull();
+    });
+
+    it("returns error for non-remote company without address", () => {
+      expect(
+        getStepValidationError(1, buildValidState({ isRemote: false, addressZipcode: "", addressStreet: "", addressCity: "" })),
+      ).not.toBeNull();
+    });
+
+    it("returns null for remote company without address", () => {
+      expect(
+        getStepValidationError(1, buildValidState({ isRemote: true, addressZipcode: "" })),
+      ).toBeNull();
+    });
   });
 
-  it("blocks leaving step 2 when a linked service entry is incomplete", () => {
-    const error = getStepValidationError(
-      2,
-      buildState({
-        services: [
-          {
-            id: "1",
-            name: "",
-            professionalName: "Joao",
-            durationValue: "45",
-            durationUnit: "minutes",
-            valueAmount: "50",
-            valueUnit: "BRL",
-          },
-        ],
-      }),
-    );
+  describe("step 2 — Contexto Estrategico", () => {
+    it("returns null for a valid step 2", () => {
+      expect(getStepValidationError(2, buildValidState())).toBeNull();
+    });
 
-    expect(error).toBe("Preencha todos os dados dos servicos antes de continuar.");
+    it("returns error without primaryGoal", () => {
+      expect(getStepValidationError(2, buildValidState({ primaryGoal: "" }))).not.toBeNull();
+    });
+
+    it("returns error for short currentPainPoint", () => {
+      expect(getStepValidationError(2, buildValidState({ currentPainPoint: "curto" }))).not.toBeNull();
+    });
+
+    it("returns error for empty audienceAgeRange", () => {
+      expect(getStepValidationError(2, buildValidState({ audienceAgeRange: [] }))).not.toBeNull();
+    });
+
+    it("returns error when hasSocialMedia=true but no handles", () => {
+      expect(
+        getStepValidationError(2, buildValidState({ hasSocialMedia: true, socialMediaHandles: "" })),
+      ).not.toBeNull();
+    });
   });
 
-  it("allows leaving step 2 when linked services are complete", () => {
-    const error = getStepValidationError(
-      2,
-      buildState({
-        services: [
-          {
-            id: "1",
-            name: "Limpeza de pele",
-            professionalName: "Joao",
-            durationValue: "45",
-            durationUnit: "minutes",
-            valueAmount: "50",
-            valueUnit: "BRL",
-          },
-        ],
-      }),
-    );
+  describe("step 3 — Tipo de Projeto e Escopo", () => {
+    it("returns null for a valid step 3", () => {
+      expect(getStepValidationError(3, buildValidState())).toBeNull();
+    });
 
-    expect(error).toBeNull();
+    it("returns error without projectType", () => {
+      expect(getStepValidationError(3, buildValidState({ projectType: "" }))).not.toBeNull();
+    });
+
+    it("returns error for short projectDescription", () => {
+      expect(getStepValidationError(3, buildValidState({ projectDescription: "curto" }))).not.toBeNull();
+    });
+
+    it("returns error for empty siteLanguages", () => {
+      expect(getStepValidationError(3, buildValidState({ siteLanguages: [] }))).not.toBeNull();
+    });
+
+    it("returns error for ecommerce without payment gateways", () => {
+      expect(
+        getStepValidationError(3, buildValidState({ projectType: "ecommerce", paymentGateways: [] })),
+      ).not.toBeNull();
+    });
+
+    it("returns error for platform with less than 2 features", () => {
+      expect(
+        getStepValidationError(3, buildValidState({ projectType: "platform", platformFeatures: ["Login"] })),
+      ).not.toBeNull();
+    });
   });
 
-  it("allows leaving step 2 with more than 100 complete services", () => {
-    const services = Array.from({ length: 101 }, (_, index) => ({
-      id: String(index),
-      name: `Servico ${index + 1}`,
-      professionalName: `Profissional ${index + 1}`,
-      durationValue: "45",
-      durationUnit: "minutes" as const,
-      valueAmount: "150",
-      valueUnit: "BRL" as const,
-    }));
+  describe("step 4 — Design, Branding e Infra", () => {
+    it("returns null for a valid step 4", () => {
+      expect(getStepValidationError(4, buildValidState())).toBeNull();
+    });
 
-    const error = getStepValidationError(2, buildState({ services }));
+    it("returns error without brandingStatus", () => {
+      expect(getStepValidationError(4, buildValidState({ brandingStatus: "" }))).not.toBeNull();
+    });
 
-    expect(error).toBeNull();
+    it("returns error for empty designStyle", () => {
+      expect(getStepValidationError(4, buildValidState({ designStyle: [] }))).not.toBeNull();
+    });
+
+    it("returns error for brandVoice with less than 2 items", () => {
+      expect(
+        getStepValidationError(4, buildValidState({ brandVoice: ["Profissional e Tecnico"] })),
+      ).not.toBeNull();
+    });
+
+    it("returns error when hasDomain=true but no URL", () => {
+      expect(
+        getStepValidationError(4, buildValidState({ hasDomain: true, websiteUrl: "" })),
+      ).not.toBeNull();
+    });
   });
 
-  it("blocks leaving step 2 when operational flow fields are missing", () => {
-    const error = getStepValidationError(
-      2,
-      buildState({
-        appointmentFlow: "",
-        services: [
-          {
-            id: "1",
-            name: "Limpeza de pele",
-            professionalName: "Joao",
-            durationValue: "45",
-            durationUnit: "minutes",
-            valueAmount: "50",
-            valueUnit: "BRL",
-          },
-        ],
-      }),
-    );
+  describe("step 5 — Cronograma, Budget e Anexos", () => {
+    it("returns null for a valid step 5", () => {
+      expect(getStepValidationError(5, buildValidState())).toBeNull();
+    });
 
-    expect(error).toBe(
-      "Preencha o fluxo de agendamentos, cancelamentos e reagendamentos antes de continuar.",
-    );
-  });
+    it("returns error without deliveryTimeline", () => {
+      expect(getStepValidationError(5, buildValidState({ deliveryTimeline: "" }))).not.toBeNull();
+    });
 
-  it("allows step 4 without technological fields when the client selected no", () => {
-    const error = getStepValidationError(
-      4,
-      buildState({
-        hasDomain: "no",
-        websiteUrl: "",
-        hostingProvider: "",
-        photosProcedures: [new File(["a"], "procedures.jpg", { type: "image/jpeg" })],
-        photosFacade: [new File(["b"], "facade.jpg", { type: "image/jpeg" })],
-      }),
-    );
+    it("returns error without projectBudget", () => {
+      expect(getStepValidationError(5, buildValidState({ projectBudget: "" }))).not.toBeNull();
+    });
 
-    expect(error).toBeNull();
-  });
+    it("returns error without any files", () => {
+      expect(
+        getStepValidationError(5, buildValidState({ filesBranding: [], filesReferences: [] })),
+      ).not.toBeNull();
+    });
 
-  it("blocks step 4 when more than 10 images were selected", () => {
-    const files = Array.from({ length: 6 }, (_, index) => new File(["a"], `file-${index}.jpg`, { type: "image/jpeg" }));
-
-    const error = getStepValidationError(
-      4,
-      buildState({
-        photosProcedures: files,
-        photosFacade: files,
-      }),
-    );
-
-    expect(error).toBe("Envie no maximo 10 imagens no total antes de concluir.");
+    it("returns error when hasCriticalDeadline=true but no reason", () => {
+      expect(
+        getStepValidationError(5, buildValidState({ hasCriticalDeadline: true, criticalDeadlineReason: "" })),
+      ).not.toBeNull();
+    });
   });
 });

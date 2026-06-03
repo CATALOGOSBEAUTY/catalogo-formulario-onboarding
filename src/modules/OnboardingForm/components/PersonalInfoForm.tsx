@@ -2,7 +2,9 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src/components/ui/Card";
 import { Input } from "@/src/components/ui/Input";
 import { Label } from "@/src/components/ui/Label";
-import { OnboardingFormState } from "../types";
+import { Select } from "@/src/components/ui/Select";
+import type { OnboardingFormState } from "../types";
+import { formatCPFOrCNPJ, formatPhoneBR, formatCEP, formatAddressNumber } from "../numberFormatting";
 
 interface Props {
   data: OnboardingFormState;
@@ -23,44 +25,6 @@ export interface AddressLookupResult {
   city: string;
   state: string;
 }
-
-export const formatCPFOrCNPJ = (value: string) => {
-  const v = value.replace(/\D/g, "");
-  if (v.length <= 11) {
-    return v
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})/, "$1-$2");
-  }
-
-  return v
-    .replace(/(\d{2})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1/$2")
-    .replace(/(\d{4})(\d{1,2})/, "$1-$2")
-    .substring(0, 18);
-};
-
-export const formatPhoneBR = (value: string) => {
-  const v = value.replace(/\D/g, "");
-  if (v.length <= 10) {
-    return v
-      .replace(/(\d{2})(\d)/, "($1) $2")
-      .replace(/(\d{4})(\d)/, "$1-$2");
-  }
-
-  return v
-    .replace(/(\d{2})(\d)/, "($1) $2")
-    .replace(/(\d{5})(\d)/, "$1-$2")
-    .substring(0, 15);
-};
-
-export const formatCEP = (value: string) => {
-  const v = value.replace(/\D/g, "");
-  return v.replace(/(\d{5})(\d{1,3})/, "$1-$2").substring(0, 9);
-};
-
-export const formatAddressNumber = (value: string) => value.replace(/\D/g, "");
 
 export async function lookupAddressByCep(
   cep: string,
@@ -92,8 +56,26 @@ export async function lookupAddressByCep(
   };
 }
 
+const SECTOR_OPTIONS = [
+  "Saude e Clinicas",
+  "Educacao e Cursos Online",
+  "E-commerce e Varejo",
+  "Imobiliario",
+  "Advocacia e Juridico",
+  "Financas e Contabilidade",
+  "Alimentacao e Gastronomia",
+  "Beleza e Estetica",
+  "Tecnologia e SaaS",
+  "Servicos e Consultoria",
+  "Outro",
+];
+
 export function PersonalInfoForm({ data, updateData }: Props) {
   React.useEffect(() => {
+    if (data.isRemote) {
+      return;
+    }
+
     const cepDigits = data.addressZipcode.replace(/\D/g, "");
 
     if (cepDigits.length !== 8) {
@@ -122,7 +104,7 @@ export function PersonalInfoForm({ data, updateData }: Props) {
     return () => {
       isActive = false;
     };
-  }, [data.addressZipcode]);
+  }, [data.addressZipcode, data.isRemote]);
 
   return (
     <Card className="mx-auto w-full max-w-3xl">
@@ -131,17 +113,17 @@ export function PersonalInfoForm({ data, updateData }: Props) {
           <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(37,136,245,0.14)_0%,rgba(142,34,255,0.16)_100%)] text-[10px] text-[#3640D7]">
             01
           </span>
-          IDENTIFICACAO BASICA
+          IDENTIDADE COMERCIAL
         </CardTitle>
         <CardDescription>
-          Precisamos dos seus dados basicos para estruturar sua experiencia digital na area da estetica.
+          Dados do responsavel e da empresa para iniciar o briefing do seu projeto digital.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="fullName" className="flex items-center gap-1">
-              Nome completo <span className="text-red-500">*</span>
+              Nome do responsavel <span className="text-red-500">*</span>
             </Label>
             <Input
               id="fullName"
@@ -153,23 +135,55 @@ export function PersonalInfoForm({ data, updateData }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cpf" className="flex items-center gap-1">
+            <Label htmlFor="companyName" className="flex items-center gap-1">
+              Razao Social / Nome Fantasia <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="companyName"
+              placeholder="Ex: Studio Digital Ltda"
+              value={data.companyName}
+              onChange={(e) => updateData({ companyName: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="companySector" className="flex items-center gap-1">
+              Segmento de atuacao <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="companySector"
+              value={data.companySector}
+              onChange={(e) => updateData({ companySector: e.target.value })}
+              required
+            >
+              <option value="" disabled>
+                Selecione...
+              </option>
+              {SECTOR_OPTIONS.map((sector) => (
+                <option key={sector} value={sector}>
+                  {sector}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cpfCnpj" className="flex items-center gap-1">
               CPF / CNPJ <span className="text-red-500">*</span>
             </Label>
             <Input
-              id="cpf"
+              id="cpfCnpj"
               placeholder="000.000.000-00"
-              value={data.cpf}
-              onChange={(e) => updateData({ cpf: formatCPFOrCNPJ(e.target.value) })}
-              pattern="(^\d{3}\.\d{3}\.\d{3}-\d{2}$)|(^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$)"
-              title="Digite um CPF ou CNPJ valido"
+              value={data.cpfCnpj}
+              onChange={(e) => updateData({ cpfCnpj: formatCPFOrCNPJ(e.target.value) })}
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email" className="flex items-center gap-1">
-              E-mail profissional <span className="text-red-500">*</span>
+              E-mail corporativo <span className="text-red-500">*</span>
             </Label>
             <Input
               id="email"
@@ -177,122 +191,155 @@ export function PersonalInfoForm({ data, updateData }: Props) {
               placeholder="contato@empresa.com"
               value={data.email}
               onChange={(e) => updateData({ email: e.target.value })}
-              pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-              title="Digite um e-mail valido com @ e dominio"
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="commercialContact" className="flex items-center gap-1">
-              WhatsApp comercial <span className="text-red-500">*</span>
+              WhatsApp de contato <span className="text-red-500">*</span>
             </Label>
             <Input
               id="commercialContact"
               placeholder="(11) 99999-9999"
               value={data.commercialContact}
               onChange={(e) => updateData({ commercialContact: formatPhoneBR(e.target.value) })}
-              pattern="^\(\d{2}\)\s\d{4,5}-\d{4}$"
-              title="Digite um numero no formato (XX) XXXXX-XXXX"
               required
             />
           </div>
 
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="currentWebsiteUrl" className="flex items-center gap-1">
+              Site atual (se ja tiver)
+            </Label>
+            <Input
+              id="currentWebsiteUrl"
+              placeholder="https://www.seusite.com.br"
+              value={data.currentWebsiteUrl}
+              onChange={(e) => updateData({ currentWebsiteUrl: e.target.value })}
+            />
+          </div>
+
           <div className="md:col-span-2 border-t border-[rgba(77,88,246,0.12)] pt-4">
-            <div className="mb-4 flex items-center gap-2">
+            <div className="mb-4 flex items-center justify-between">
               <Label className="mb-0 uppercase tracking-widest text-[#4D58F6]">
-                Localizacao do estabelecimento
+                Localizacao da empresa
               </Label>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-              <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="addressZipcode" className="flex items-center gap-1">
-                  CEP <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="addressZipcode"
-                  placeholder="00000-000"
-                  inputMode="numeric"
-                  value={data.addressZipcode}
-                  onChange={(e) => updateData({ addressZipcode: formatCEP(e.target.value) })}
-                  pattern="^\d{5}-\d{3}$"
-                  title="Digite um CEP valido no formato XXXXX-XXX"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-3">
-                <Label htmlFor="addressStreet" className="flex items-center gap-1">
-                  Rua / Avenida <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="addressStreet"
-                  placeholder="Ex: Av. Paulista"
-                  value={data.addressStreet}
-                  onChange={(e) => updateData({ addressStreet: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="addressNumber" className="flex items-center gap-1">
-                  Numero <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="addressNumber"
-                  placeholder="Ex: 1000"
-                  inputMode="numeric"
-                  value={data.addressNumber}
-                  onChange={(e) => updateData({ addressNumber: formatAddressNumber(e.target.value) })}
-                  pattern="^\d+$"
-                  title="Digite somente numeros"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-3">
-                <Label htmlFor="addressNeighborhood" className="flex items-center gap-1">
-                  Bairro <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="addressNeighborhood"
-                  placeholder="Ex: Bela Vista"
-                  value={data.addressNeighborhood}
-                  onChange={(e) => updateData({ addressNeighborhood: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="addressCity" className="flex items-center gap-1">
-                  Cidade <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="addressCity"
-                  placeholder="Ex: Sao Paulo"
-                  value={data.addressCity}
-                  onChange={(e) => updateData({ addressCity: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="addressState" className="flex items-center gap-1">
-                  Estado <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="addressState"
-                  placeholder="Ex: SP"
-                  value={data.addressState}
+              <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={data.isRemote}
                   onChange={(e) =>
-                    updateData({ addressState: e.target.value.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 2) })
+                    updateData({
+                      isRemote: e.target.checked,
+                      ...(e.target.checked
+                        ? {
+                            addressZipcode: "",
+                            addressStreet: "",
+                            addressNumber: "",
+                            addressNeighborhood: "",
+                            addressCity: "",
+                            addressState: "",
+                          }
+                        : {}),
+                    })
                   }
-                  maxLength={2}
-                  required
+                  className="h-4 w-4 rounded border-slate-300 text-[#4D58F6] focus:ring-[#4D58F6]"
                 />
-              </div>
+                Empresa 100% remota (sem escritorio fisico)
+              </label>
             </div>
+
+            {!data.isRemote ? (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <div className="space-y-2 md:col-span-1">
+                  <Label htmlFor="addressZipcode" className="flex items-center gap-1">
+                    CEP <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="addressZipcode"
+                    placeholder="00000-000"
+                    inputMode="numeric"
+                    value={data.addressZipcode}
+                    onChange={(e) => updateData({ addressZipcode: formatCEP(e.target.value) })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-3">
+                  <Label htmlFor="addressStreet" className="flex items-center gap-1">
+                    Rua / Avenida <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="addressStreet"
+                    placeholder="Ex: Av. Paulista"
+                    value={data.addressStreet}
+                    onChange={(e) => updateData({ addressStreet: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-1">
+                  <Label htmlFor="addressNumber" className="flex items-center gap-1">
+                    Numero <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="addressNumber"
+                    placeholder="Ex: 1000"
+                    inputMode="numeric"
+                    value={data.addressNumber}
+                    onChange={(e) => updateData({ addressNumber: formatAddressNumber(e.target.value) })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-3">
+                  <Label htmlFor="addressNeighborhood" className="flex items-center gap-1">
+                    Bairro <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="addressNeighborhood"
+                    placeholder="Ex: Bela Vista"
+                    value={data.addressNeighborhood}
+                    onChange={(e) => updateData({ addressNeighborhood: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="addressCity" className="flex items-center gap-1">
+                    Cidade <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="addressCity"
+                    placeholder="Ex: Sao Paulo"
+                    value={data.addressCity}
+                    onChange={(e) => updateData({ addressCity: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="addressState" className="flex items-center gap-1">
+                    Estado <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="addressState"
+                    placeholder="Ex: SP"
+                    value={data.addressState}
+                    onChange={(e) =>
+                      updateData({ addressState: e.target.value.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 2) })
+                    }
+                    maxLength={2}
+                    required
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-[rgba(77,88,246,0.2)] bg-[rgba(245,247,255,0.82)] py-4 text-center text-sm text-slate-500">
+                Empresa remota — endereco nao e necessario.
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

@@ -2,43 +2,105 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2 } from "lucide-react";
 import { PersonalInfoForm } from "./components/PersonalInfoForm";
-import { BusinessServicesForm } from "./components/BusinessServicesForm";
-import { SchedulingConfigForm } from "./components/SchedulingConfigForm";
-import { MediaTechForm } from "./components/MediaTechForm";
+import { StrategicContextForm } from "./components/StrategicContextForm";
+import { ProjectScopeForm } from "./components/ProjectScopeForm";
+import { DesignBrandingForm } from "./components/DesignBrandingForm";
+import { BudgetTimelineForm } from "./components/BudgetTimelineForm";
 import type { OnboardingFormState } from "./types";
 import { Button } from "@/src/components/ui/Button";
 import { submitOnboardingForm } from "./api";
 import { getStepValidationError } from "./validation";
 
 const INITIAL_STATE: OnboardingFormState = {
+  // Passo 1
   fullName: "",
-  cpf: "",
+  companyName: "",
+  companySector: "",
+  cpfCnpj: "",
   email: "",
   commercialContact: "",
+  currentWebsiteUrl: "",
+  isRemote: false,
   addressZipcode: "",
   addressStreet: "",
   addressNumber: "",
   addressNeighborhood: "",
   addressCity: "",
   addressState: "",
-  services: [],
-  appointmentFlow: "",
-  cancellationLevel: "",
-  rescheduleLevel: "",
-  schedulingModel: "",
-  virtualAssistantEnabled: "no",
-  virtualAssistantScope: "",
-  cancellationFineAmount: "",
-  cancellationFineUnit: "BRL",
-  rescheduleDetails: "",
-  upfrontCostAmount: "",
-  upfrontCostUnit: "PERCENT",
-  photosProcedures: [],
-  photosFacade: [],
-  hasDomain: "no",
+  // Passo 2
+  primaryGoal: "",
+  currentPainPoint: "",
+  targetAudience: "",
+  audienceAgeRange: [],
+  audienceDigitalBehavior: [],
+  competitors: "",
+  competitorLikes: "",
+  uniqueValueProposition: "",
+  hasSocialMedia: false,
+  socialMediaHandles: "",
+  // Passo 3
+  projectType: "",
+  projectDescription: "",
+  needsCms: false,
+  needsContactForm: true,
+  needsWhatsApp: true,
+  needsSeo: true,
+  siteLanguages: ["Portugues"],
+  analyticsRequired: [],
+  trackingPixels: [],
+  landingPageCta: "",
+  hasProductVideo: false,
+  leadCaptureMethod: "",
+  leadDestination: "",
+  websitePages: [],
+  hasPortfolio: false,
+  needsTestimonials: false,
+  needsAboutPage: true,
+  productVolume: "",
+  ecommercePlatform: "",
+  paymentGateways: [],
+  salesModels: [],
+  needsShippingIntegration: false,
+  needsCoupons: false,
+  needsProductReviews: false,
+  platformType: "",
+  platformUserTypes: [],
+  platformFeatures: [],
+  needsMobileApp: false,
+  revenueModel: "",
+  hasLegacySystem: false,
+  // Passo 4
+  brandingStatus: "",
+  designStyle: [],
+  brandVoice: [],
+  designReferences: "",
+  hasDomain: false,
   websiteUrl: "",
+  hasHosting: false,
   hostingProvider: "",
+  needsSeoConsulting: false,
+  needsWcagCompliance: false,
+  needsPostLaunchSupport: false,
+  // Passo 5
+  decisionMaker: "",
+  hasCriticalDeadline: false,
+  criticalDeadlineReason: "",
+  deliveryTimeline: "",
+  projectBudget: "",
+  contentStatus: "",
+  preferredContactChannel: "",
+  meetingFrequency: "",
+  filesBranding: [],
+  filesReferences: [],
 };
+
+const STEP_LABELS = [
+  "Identidade",
+  "Estrategia",
+  "Escopo",
+  "Design",
+  "Budget",
+];
 
 export function OnboardingForm() {
   const [data, setData] = useState<OnboardingFormState>(INITIAL_STATE);
@@ -49,7 +111,7 @@ export function OnboardingForm() {
   const [submitStage, setSubmitStage] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitWarning, setSubmitWarning] = useState("");
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const updateData = (fields: Partial<OnboardingFormState>) => {
     setData((prev) => ({ ...prev, ...fields }));
@@ -78,7 +140,7 @@ export function OnboardingForm() {
 
     setIsSubmitting(true);
     setSubmitProgress(0);
-    setSubmitStage("Preparando envio das imagens...");
+    setSubmitStage("Preparando envio dos arquivos...");
     setSubmitWarning("");
 
     submitOnboardingForm(data, {
@@ -86,7 +148,7 @@ export function OnboardingForm() {
         setSubmitProgress(progress);
         setSubmitStage(
           progress < 100
-            ? `Carregando imagens... ${progress}%`
+            ? `Carregando arquivos... ${progress}%`
             : "Processando envio final...",
         );
       },
@@ -126,7 +188,7 @@ export function OnboardingForm() {
           transition={{ delay: 0.1 }}
           className="text-3xl font-bold tracking-tight text-slate-800"
         >
-          Solicitacao recebida!
+          Briefing recebido com sucesso!
         </motion.h2>
 
         <motion.p
@@ -135,8 +197,8 @@ export function OnboardingForm() {
           transition={{ delay: 0.2 }}
           className="text-slate-500 max-w-lg leading-relaxed"
         >
-          Recebemos seus dados com sucesso. Nossa equipe vai processar o cadastro
-          e acompanhar o envio automatico para o WhatsApp da empresa.
+          Recebemos os dados do seu projeto. Nossa equipe vai analisar o escopo
+          e entrar em contato para dar sequencia a proposta comercial.
         </motion.p>
 
         {submitWarning ? (
@@ -167,7 +229,7 @@ export function OnboardingForm() {
   return (
     <div className="relative z-10 mx-auto w-full max-w-4xl overflow-hidden rounded-[2rem] border border-[rgba(77,88,246,0.1)] bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(234,240,255,0.55)_100%)] px-5 pb-12 pt-6 shadow-[0_30px_90px_rgba(49,67,136,0.08)]">
       <div className="mb-8">
-        <div className="mb-2 flex justify-between px-1 text-[10px] font-bold uppercase tracking-wider text-slate-700">
+        <div className="mb-3 flex justify-between px-1 text-[10px] font-bold uppercase tracking-wider text-slate-700">
           <span>Passo {currentStep} de {totalSteps}</span>
           <span className="text-[#3E49F1]">
             {Math.round((currentStep / totalSteps) * 100)}% concluido
@@ -180,6 +242,18 @@ export function OnboardingForm() {
             transition={{ ease: "easeInOut", duration: 0.4 }}
             className="h-full bg-[linear-gradient(90deg,#2388F5_0%,#8E22FF_100%)]"
           />
+        </div>
+        <div className="mt-2 flex justify-between px-1">
+          {STEP_LABELS.map((label, index) => (
+            <span
+              key={label}
+              className={`text-[9px] font-bold uppercase tracking-wider transition-colors ${
+                index + 1 <= currentStep ? "text-[#4D58F6]" : "text-slate-400"
+              }`}
+            >
+              {label}
+            </span>
+          ))}
         </div>
       </div>
 
@@ -205,7 +279,7 @@ export function OnboardingForm() {
               exit={{ opacity: 0, x: -15 }}
               transition={{ duration: 0.25 }}
             >
-              <BusinessServicesForm data={data} updateData={updateData} />
+              <StrategicContextForm data={data} updateData={updateData} />
             </motion.div>
           ) : null}
 
@@ -217,7 +291,7 @@ export function OnboardingForm() {
               exit={{ opacity: 0, x: -15 }}
               transition={{ duration: 0.25 }}
             >
-              <SchedulingConfigForm data={data} updateData={updateData} />
+              <ProjectScopeForm data={data} updateData={updateData} />
             </motion.div>
           ) : null}
 
@@ -229,7 +303,19 @@ export function OnboardingForm() {
               exit={{ opacity: 0, x: -15 }}
               transition={{ duration: 0.25 }}
             >
-              <MediaTechForm data={data} updateData={updateData} />
+              <DesignBrandingForm data={data} updateData={updateData} />
+            </motion.div>
+          ) : null}
+
+          {currentStep === 5 ? (
+            <motion.div
+              key="step5"
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -15 }}
+              transition={{ duration: 0.25 }}
+            >
+              <BudgetTimelineForm data={data} updateData={updateData} />
             </motion.div>
           ) : null}
         </AnimatePresence>
@@ -255,7 +341,7 @@ export function OnboardingForm() {
               />
             </div>
             <p className="text-xs text-slate-500">
-              As imagens estao sendo carregadas e enviadas junto com o cadastro.
+              Os arquivos estao sendo carregados e enviados junto com o briefing.
             </p>
           </div>
         ) : null}
@@ -275,7 +361,7 @@ export function OnboardingForm() {
             <Button type="submit">Proximo passo</Button>
           ) : (
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? submitStage || "Enviando..." : "Enviar solicitacao de cadastro"}
+              {isSubmitting ? submitStage || "Enviando..." : "Enviar briefing do projeto"}
             </Button>
           )}
         </div>
