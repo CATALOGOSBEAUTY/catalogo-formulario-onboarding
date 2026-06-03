@@ -10,8 +10,11 @@ describe("parseOnboardingRequestPayload", () => {
     expect(result.companyName).toBe("Studio Digital Ltda");
     expect(result.isRemote).toBe(true);
     expect(result.primaryGoal).toBe("lead_generation");
+    expect(result.currentPainPoints).toHaveLength(2);
+    expect(result.targetAudienceTypes).toHaveLength(2);
     expect(result.audienceAgeRange).toHaveLength(1);
     expect(result.projectType).toBe("landing_page");
+    expect(result.projectGoals).toHaveLength(2);
     expect(result.designStyle).toEqual(["minimalist", "tech"]);
     expect(result.brandVoice).toHaveLength(2);
     expect(result.deliveryTimeline).toBe("standard");
@@ -76,10 +79,10 @@ describe("parseOnboardingRequestPayload", () => {
     expect(result.websiteUrl).toBe("https://site.com");
   });
 
-  it("rejects hasSocialMedia=true without handles", () => {
+  it("rejects hasSocialMedia=true without networks selected", () => {
     expect(() =>
       parseOnboardingRequestPayload(
-        buildValidPayload({ body: { hasSocialMedia: "yes", socialMediaHandles: "" } }),
+        buildValidPayload({ body: { hasSocialMedia: "yes", socialMediaNetworks: JSON.stringify([]) } }),
       ),
     ).toThrow("Dados do formulario invalidos");
   });
@@ -131,10 +134,10 @@ describe("parseOnboardingRequestPayload", () => {
     ).toThrow("Dados do formulario invalidos");
   });
 
-  it("rejects project description shorter than 30 characters", () => {
+  it("rejects empty project goals array", () => {
     expect(() =>
       parseOnboardingRequestPayload(
-        buildValidPayload({ body: { projectDescription: "muito curto" } }),
+        buildValidPayload({ body: { projectGoals: JSON.stringify([]) } }),
       ),
     ).toThrow("Dados do formulario invalidos");
   });

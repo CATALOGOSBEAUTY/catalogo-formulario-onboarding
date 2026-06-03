@@ -19,17 +19,21 @@ function buildValidInput(overrides: Partial<OnboardingSubmissionInput> = {}): On
     addressCity: "",
     addressState: "",
     primaryGoal: "lead_generation",
-    currentPainPoint: "Site desatualizado.",
-    targetAudience: "Empreendedores jovens.",
+    currentPainPoints: ["Site desatualizado e sem design profissional"],
+    currentPainPointOther: "",
+    targetAudienceTypes: ["Outras empresas (B2B)"],
     audienceAgeRange: ["25 a 34 anos (Millennials)"],
     audienceDigitalBehavior: ["Acessa principalmente pelo celular"],
     competitors: "www.concorrente1.com.br",
-    competitorLikes: "",
-    uniqueValueProposition: "Automatizamos processos.",
+    competitorLikes: ["Design limpo e profissional"],
+    uniqueValueProps: ["Tecnologia/inovacao exclusiva"],
+    uniqueValuePropOther: "",
     hasSocialMedia: false,
+    socialMediaNetworks: [],
     socialMediaHandles: "",
     projectType: "landing_page",
-    projectDescription: "Landing page para captacao de leads.",
+    projectGoals: ["Captar leads e contatos comerciais"],
+    projectGoalsOther: "",
     needsCms: false,
     needsContactForm: true,
     needsWhatsApp: true,
@@ -69,7 +73,7 @@ describe("formatOnboardingWhatsAppMessage", () => {
     expect(message).toContain("*BRIEFING DE PROJETO DIGITAL*");
     expect(message).toContain("*1. IDENTIFICACAO*");
     expect(message).toContain("*2. LOCALIZACAO*");
-    expect(message).toContain("*3. CONTEXTO ESTRATEGICO*");
+    expect(message).toContain("*3. ESTRATEGIA E MERCADO*");
     expect(message).toContain("*4. ESCOPO DO PROJETO*");
     expect(message).toContain("*5. DESIGN E INFRA*");
     expect(message).toContain("*6. COMERCIAL*");

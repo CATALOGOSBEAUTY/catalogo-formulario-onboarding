@@ -9,7 +9,7 @@ export interface OnboardingUploadedFile {
 }
 
 export interface OnboardingSubmissionInput {
-  // Passo 1: Identidade Comercial
+  // Steps 01-03: Identidade e Localizacao
   fullName: string;
   companyName: string;
   companySector: string;
@@ -25,21 +25,25 @@ export interface OnboardingSubmissionInput {
   addressCity: string;
   addressState: string;
 
-  // Passo 2: Contexto Estrategico
+  // Steps 04-06: Estrategia e Mercado
   primaryGoal: string;
-  currentPainPoint: string;
-  targetAudience: string;
+  currentPainPoints: string[];           // was currentPainPoint: string
+  currentPainPointOther: string;
+  targetAudienceTypes: string[];         // was targetAudience: string
   audienceAgeRange: string[];
   audienceDigitalBehavior: string[];
   competitors: string;
-  competitorLikes: string;
-  uniqueValueProposition: string;
+  competitorLikes: string[];             // was competitorLikes: string
+  uniqueValueProps: string[];            // was uniqueValueProposition: string
+  uniqueValuePropOther: string;
   hasSocialMedia: boolean;
+  socialMediaNetworks: string[];
   socialMediaHandles: string;
 
-  // Passo 3: Tipo de Projeto e Escopo
+  // Steps 07-08: Projeto e Escopo
   projectType: string;
-  projectDescription: string;
+  projectGoals: string[];                // was projectDescription: string
+  projectGoalsOther: string;
   needsCms: boolean;
   needsContactForm: boolean;
   needsWhatsApp: boolean;
@@ -49,7 +53,7 @@ export interface OnboardingSubmissionInput {
   trackingPixels: string[];
   projectScopeConfig: Record<string, unknown>;
 
-  // Passo 4: Design, Branding e Infra
+  // Steps 09-10: Design e Infra
   brandingStatus: string;
   designStyle: string[];
   brandVoice: string[];
@@ -62,7 +66,7 @@ export interface OnboardingSubmissionInput {
   needsWcagCompliance: boolean;
   needsPostLaunchSupport: boolean;
 
-  // Passo 5: Cronograma, Budget e Anexos
+  // Steps 11-12: Cronograma e Anexos
   decisionMaker: string;
   hasCriticalDeadline: boolean;
   criticalDeadlineReason: string;

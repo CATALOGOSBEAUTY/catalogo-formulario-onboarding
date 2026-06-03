@@ -3,7 +3,7 @@ create extension if not exists "pgcrypto";
 create table if not exists public.onboarding_submissions (
   id uuid primary key default gen_random_uuid(),
 
-  -- Passo 1: Identidade Comercial
+  -- Steps 01-03: Identidade e Localizacao
   full_name text not null,
   company_name text not null default '',
   company_sector text not null default '',
@@ -19,21 +19,25 @@ create table if not exists public.onboarding_submissions (
   address_city text,
   address_state text,
 
-  -- Passo 2: Contexto Estrategico
+  -- Steps 04-06: Estrategia e Mercado
   primary_goal text not null default '',
-  current_pain_point text not null default '',
-  target_audience text not null default '',
+  current_pain_points text[] not null default '{}',
+  current_pain_point_other text,
+  target_audience_types text[] not null default '{}',
   audience_age_range text[] not null default '{}',
   audience_behavior text[] not null default '{}',
-  competitors text not null default '',
-  competitor_likes text,
-  unique_value_prop text not null default '',
+  competitors text,
+  competitor_likes text[] not null default '{}',
+  unique_value_props text[] not null default '{}',
+  unique_value_prop_other text,
   has_social_media boolean not null default false,
+  social_media_networks text[] not null default '{}',
   social_media_handles text,
 
-  -- Passo 3: Tipo de Projeto e Escopo
+  -- Steps 07-08: Projeto e Escopo
   project_type text not null default '',
-  project_description text not null default '',
+  project_goals text[] not null default '{}',
+  project_goals_other text,
   needs_cms boolean not null default false,
   needs_contact_form boolean not null default false,
   needs_whatsapp boolean not null default false,
@@ -43,7 +47,7 @@ create table if not exists public.onboarding_submissions (
   tracking_pixels text[] not null default '{}',
   project_scope_config jsonb not null default '{}',
 
-  -- Passo 4: Design, Branding e Infraestrutura
+  -- Steps 09-10: Design, Branding e Infraestrutura
   branding_status text not null default '',
   design_style text[] not null default '{}',
   brand_voice text[] not null default '{}',
@@ -56,7 +60,7 @@ create table if not exists public.onboarding_submissions (
   needs_wcag boolean not null default false,
   needs_post_support boolean not null default false,
 
-  -- Passo 5: Cronograma, Budget e Comunicacao
+  -- Steps 11-12: Cronograma, Budget e Comunicacao
   decision_maker text not null default '',
   has_critical_deadline boolean not null default false,
   critical_deadline_reason text,

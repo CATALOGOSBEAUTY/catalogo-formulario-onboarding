@@ -1,4 +1,9 @@
-import type { OnboardingFormState, SubmitOnboardingResponse } from "./types";
+import type { OnboardingFormState } from "./types";
+
+export interface SubmitOnboardingResponse {
+  id: string;
+  warning?: string;
+}
 
 interface SubmitOnboardingFormOptions {
   onProgress?: (progress: number) => void;
@@ -6,13 +11,8 @@ interface SubmitOnboardingFormOptions {
 }
 
 function appendFiles(formData: FormData, fieldName: string, files: File[]) {
-  if (files.length === 0) {
-    return;
-  }
-
-  files.forEach((file) => {
-    formData.append(fieldName, file);
-  });
+  if (files.length === 0) return;
+  files.forEach((file) => formData.append(fieldName, file));
 }
 
 function appendArray(formData: FormData, fieldName: string, values: string[]) {
@@ -26,7 +26,7 @@ export async function submitOnboardingForm(
   const { onProgress, xhrFactory = () => new XMLHttpRequest() } = options;
   const formData = new FormData();
 
-  // Passo 1: Identidade Comercial
+  // Step 01-03: Identidade e Localizacao
   formData.append("fullName", data.fullName);
   formData.append("companyName", data.companyName);
   formData.append("companySector", data.companySector);
@@ -42,21 +42,25 @@ export async function submitOnboardingForm(
   formData.append("addressCity", data.addressCity);
   formData.append("addressState", data.addressState);
 
-  // Passo 2: Contexto Estrategico
+  // Step 04-06: Estrategia e Mercado
   formData.append("primaryGoal", data.primaryGoal);
-  formData.append("currentPainPoint", data.currentPainPoint);
-  formData.append("targetAudience", data.targetAudience);
+  appendArray(formData, "currentPainPoints", data.currentPainPoints);
+  formData.append("currentPainPointOther", data.currentPainPointOther);
+  appendArray(formData, "targetAudienceTypes", data.targetAudienceTypes);
   appendArray(formData, "audienceAgeRange", data.audienceAgeRange);
   appendArray(formData, "audienceDigitalBehavior", data.audienceDigitalBehavior);
   formData.append("competitors", data.competitors);
-  formData.append("competitorLikes", data.competitorLikes);
-  formData.append("uniqueValueProposition", data.uniqueValueProposition);
+  appendArray(formData, "competitorLikes", data.competitorLikes);
+  appendArray(formData, "uniqueValueProps", data.uniqueValueProps);
+  formData.append("uniqueValuePropOther", data.uniqueValuePropOther);
   formData.append("hasSocialMedia", data.hasSocialMedia ? "yes" : "no");
+  appendArray(formData, "socialMediaNetworks", data.socialMediaNetworks);
   formData.append("socialMediaHandles", data.hasSocialMedia ? data.socialMediaHandles : "");
 
-  // Passo 3: Tipo de Projeto e Escopo
+  // Step 07-08: Projeto e Escopo
   formData.append("projectType", data.projectType);
-  formData.append("projectDescription", data.projectDescription);
+  appendArray(formData, "projectGoals", data.projectGoals);
+  formData.append("projectGoalsOther", data.projectGoalsOther);
   formData.append("needsCms", data.needsCms ? "yes" : "no");
   formData.append("needsContactForm", data.needsContactForm ? "yes" : "no");
   formData.append("needsWhatsApp", data.needsWhatsApp ? "yes" : "no");
@@ -65,9 +69,8 @@ export async function submitOnboardingForm(
   appendArray(formData, "analyticsRequired", data.analyticsRequired);
   appendArray(formData, "trackingPixels", data.trackingPixels);
 
-  // Condicionais por tipo (serializados como JSON no campo projectScopeConfig)
+  // Condicionais por tipo (JSONB)
   const scopeConfig: Record<string, unknown> = {};
-
   if (data.projectType === "landing_page") {
     scopeConfig.landingPageCta = data.landingPageCta;
     scopeConfig.hasProductVideo = data.hasProductVideo;
@@ -94,10 +97,9 @@ export async function submitOnboardingForm(
     scopeConfig.revenueModel = data.revenueModel;
     scopeConfig.hasLegacySystem = data.hasLegacySystem;
   }
-
   formData.append("projectScopeConfig", JSON.stringify(scopeConfig));
 
-  // Passo 4: Design, Branding e Infra
+  // Step 09-10: Design e Infra
   formData.append("brandingStatus", data.brandingStatus);
   appendArray(formData, "designStyle", data.designStyle);
   appendArray(formData, "brandVoice", data.brandVoice);
@@ -110,7 +112,7 @@ export async function submitOnboardingForm(
   formData.append("needsWcagCompliance", data.needsWcagCompliance ? "yes" : "no");
   formData.append("needsPostLaunchSupport", data.needsPostLaunchSupport ? "yes" : "no");
 
-  // Passo 5: Cronograma, Budget e Anexos
+  // Step 11-12: Cronograma e Anexos
   formData.append("decisionMaker", data.decisionMaker);
   formData.append("hasCriticalDeadline", data.hasCriticalDeadline ? "yes" : "no");
   formData.append("criticalDeadlineReason", data.hasCriticalDeadline ? data.criticalDeadlineReason : "");
@@ -125,40 +127,23 @@ export async function submitOnboardingForm(
 
   return new Promise<SubmitOnboardingResponse>((resolve, reject) => {
     const xhr = xhrFactory();
-
     xhr.open("POST", "/api/onboarding-submissions");
 
     xhr.upload.onprogress = (event) => {
-      if (!event.lengthComputable || !onProgress) {
-        return;
-      }
-
+      if (!event.lengthComputable || !onProgress) return;
       onProgress(Math.round((event.loaded / event.total) * 100));
     };
 
-    xhr.onerror = () => {
-      reject(new Error("Falha ao enviar formulario."));
-    };
+    xhr.onerror = () => reject(new Error("Falha ao enviar formulario."));
 
     xhr.onload = () => {
       onProgress?.(100);
-
       try {
-        const payload = JSON.parse(xhr.responseText || "{}") as
-          | SubmitOnboardingResponse
-          | { error?: string };
-
+        const payload = JSON.parse(xhr.responseText || "{}") as SubmitOnboardingResponse | { error?: string };
         if (xhr.status < 200 || xhr.status >= 300) {
-          reject(
-            new Error(
-              typeof payload === "object" && payload && "error" in payload
-                ? payload.error || "Falha ao enviar formulario."
-                : "Falha ao enviar formulario.",
-            ),
-          );
+          reject(new Error(typeof payload === "object" && payload && "error" in payload ? payload.error || "Falha ao enviar formulario." : "Falha ao enviar formulario."));
           return;
         }
-
         resolve(payload as SubmitOnboardingResponse);
       } catch {
         reject(new Error("Falha ao interpretar resposta do formulario."));

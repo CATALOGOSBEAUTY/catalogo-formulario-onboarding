@@ -1,109 +1,69 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2 } from "lucide-react";
-import { PersonalInfoForm } from "./components/PersonalInfoForm";
-import { StrategicContextForm } from "./components/StrategicContextForm";
-import { ProjectScopeForm } from "./components/ProjectScopeForm";
-import { DesignBrandingForm } from "./components/DesignBrandingForm";
-import { BudgetTimelineForm } from "./components/BudgetTimelineForm";
+import { Step01_ResponsibleData } from "./components/Step01_ResponsibleData";
+import { Step02_CommercialContact } from "./components/Step02_CommercialContact";
+import { Step03_Location } from "./components/Step03_Location";
+import { Step04_GoalAndPain } from "./components/Step04_GoalAndPain";
+import { Step05_TargetAudience } from "./components/Step05_TargetAudience";
+import { Step06_MarketPosition } from "./components/Step06_MarketPosition";
+import { Step07_ProjectType } from "./components/Step07_ProjectType";
+import { Step08_ScopeAndFeatures } from "./components/Step08_ScopeAndFeatures";
+import { Step09_VisualIdentity } from "./components/Step09_VisualIdentity";
+import { Step10_VoiceAndInfra } from "./components/Step10_VoiceAndInfra";
+import { Step11_TimelineAndBudget } from "./components/Step11_TimelineAndBudget";
+import { Step12_ContentAndFiles } from "./components/Step12_ContentAndFiles";
 import type { OnboardingFormState } from "./types";
+import { INITIAL_FORM_STATE } from "./types";
 import { Button } from "@/src/components/ui/Button";
 import { submitOnboardingForm } from "./api";
 import { getStepValidationError } from "./validation";
 
-const INITIAL_STATE: OnboardingFormState = {
-  // Passo 1
-  fullName: "",
-  companyName: "",
-  companySector: "",
-  cpfCnpj: "",
-  email: "",
-  commercialContact: "",
-  currentWebsiteUrl: "",
-  isRemote: false,
-  addressZipcode: "",
-  addressStreet: "",
-  addressNumber: "",
-  addressNeighborhood: "",
-  addressCity: "",
-  addressState: "",
-  // Passo 2
-  primaryGoal: "",
-  currentPainPoint: "",
-  targetAudience: "",
-  audienceAgeRange: [],
-  audienceDigitalBehavior: [],
-  competitors: "",
-  competitorLikes: "",
-  uniqueValueProposition: "",
-  hasSocialMedia: false,
-  socialMediaHandles: "",
-  // Passo 3
-  projectType: "",
-  projectDescription: "",
-  needsCms: false,
-  needsContactForm: true,
-  needsWhatsApp: true,
-  needsSeo: true,
-  siteLanguages: ["Portugues"],
-  analyticsRequired: [],
-  trackingPixels: [],
-  landingPageCta: "",
-  hasProductVideo: false,
-  leadCaptureMethod: "",
-  leadDestination: "",
-  websitePages: [],
-  hasPortfolio: false,
-  needsTestimonials: false,
-  needsAboutPage: true,
-  productVolume: "",
-  ecommercePlatform: "",
-  paymentGateways: [],
-  salesModels: [],
-  needsShippingIntegration: false,
-  needsCoupons: false,
-  needsProductReviews: false,
-  platformType: "",
-  platformUserTypes: [],
-  platformFeatures: [],
-  needsMobileApp: false,
-  revenueModel: "",
-  hasLegacySystem: false,
-  // Passo 4
-  brandingStatus: "",
-  designStyle: [],
-  brandVoice: [],
-  designReferences: "",
-  hasDomain: false,
-  websiteUrl: "",
-  hasHosting: false,
-  hostingProvider: "",
-  needsSeoConsulting: false,
-  needsWcagCompliance: false,
-  needsPostLaunchSupport: false,
-  // Passo 5
-  decisionMaker: "",
-  hasCriticalDeadline: false,
-  criticalDeadlineReason: "",
-  deliveryTimeline: "",
-  projectBudget: "",
-  contentStatus: "",
-  preferredContactChannel: "",
-  meetingFrequency: "",
-  filesBranding: [],
-  filesReferences: [],
-};
+const TOTAL_STEPS = 12;
 
 const STEP_LABELS = [
-  "Identidade",
-  "Estrategia",
+  "Responsável",
+  "Contato",
+  "Local",
+  "Objetivo",
+  "Público",
+  "Mercado",
+  "Projeto",
   "Escopo",
-  "Design",
-  "Budget",
+  "Visual",
+  "Voz",
+  "Prazo",
+  "Anexos",
 ];
 
+function StepContent({
+  step,
+  data,
+  updateData,
+}: {
+  step: number;
+  data: OnboardingFormState;
+  updateData: (fields: Partial<OnboardingFormState>) => void;
+}) {
+  switch (step) {
+    case 1: return <Step01_ResponsibleData data={data} updateData={updateData} />;
+    case 2: return <Step02_CommercialContact data={data} updateData={updateData} />;
+    case 3: return <Step03_Location data={data} updateData={updateData} />;
+    case 4: return <Step04_GoalAndPain data={data} updateData={updateData} />;
+    case 5: return <Step05_TargetAudience data={data} updateData={updateData} />;
+    case 6: return <Step06_MarketPosition data={data} updateData={updateData} />;
+    case 7: return <Step07_ProjectType data={data} updateData={updateData} />;
+    case 8: return <Step08_ScopeAndFeatures data={data} updateData={updateData} />;
+    case 9: return <Step09_VisualIdentity data={data} updateData={updateData} />;
+    case 10: return <Step10_VoiceAndInfra data={data} updateData={updateData} />;
+    case 11: return <Step11_TimelineAndBudget data={data} updateData={updateData} />;
+    case 12: return <Step12_ContentAndFiles data={data} updateData={updateData} />;
+    default: return null;
+  }
+}
+
 export function OnboardingForm() {
-  const [data, setData] = useState<OnboardingFormState>(INITIAL_STATE);
+  const [data, setData] = useState<OnboardingFormState>(INITIAL_FORM_STATE);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -111,7 +71,6 @@ export function OnboardingForm() {
   const [submitStage, setSubmitStage] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitWarning, setSubmitWarning] = useState("");
-  const totalSteps = 5;
 
   const updateData = (fields: Partial<OnboardingFormState>) => {
     setData((prev) => ({ ...prev, ...fields }));
@@ -133,7 +92,7 @@ export function OnboardingForm() {
       return;
     }
 
-    if (currentStep < totalSteps) {
+    if (currentStep < TOTAL_STEPS) {
       setCurrentStep((prev) => prev + 1);
       return;
     }
@@ -230,24 +189,24 @@ export function OnboardingForm() {
     <div className="relative z-10 mx-auto w-full max-w-4xl overflow-hidden rounded-[2rem] border border-[rgba(77,88,246,0.1)] bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(234,240,255,0.55)_100%)] px-5 pb-12 pt-6 shadow-[0_30px_90px_rgba(49,67,136,0.08)]">
       <div className="mb-8">
         <div className="mb-3 flex justify-between px-1 text-[10px] font-bold uppercase tracking-wider text-slate-700">
-          <span>Passo {currentStep} de {totalSteps}</span>
+          <span>Passo {currentStep} de {TOTAL_STEPS}</span>
           <span className="text-[#3E49F1]">
-            {Math.round((currentStep / totalSteps) * 100)}% concluido
+            {Math.round((currentStep / TOTAL_STEPS) * 100)}% concluido
           </span>
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(77,88,246,0.16)] shadow-[inset_0_1px_2px_rgba(61,78,140,0.08)]">
           <motion.div
             initial={{ width: 0 }}
-            animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            animate={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
             transition={{ ease: "easeInOut", duration: 0.4 }}
             className="h-full bg-[linear-gradient(90deg,#2388F5_0%,#8E22FF_100%)]"
           />
         </div>
-        <div className="mt-2 flex justify-between px-1">
+        <div className="mt-2 flex justify-between px-1 overflow-x-auto gap-1">
           {STEP_LABELS.map((label, index) => (
             <span
               key={label}
-              className={`text-[9px] font-bold uppercase tracking-wider transition-colors ${
+              className={`whitespace-nowrap text-[8px] font-bold uppercase tracking-wider transition-colors ${
                 index + 1 <= currentStep ? "text-[#4D58F6]" : "text-slate-400"
               }`}
             >
@@ -259,65 +218,15 @@ export function OnboardingForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <AnimatePresence mode="wait" initial={false}>
-          {currentStep === 1 ? (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <PersonalInfoForm data={data} updateData={updateData} />
-            </motion.div>
-          ) : null}
-
-          {currentStep === 2 ? (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <StrategicContextForm data={data} updateData={updateData} />
-            </motion.div>
-          ) : null}
-
-          {currentStep === 3 ? (
-            <motion.div
-              key="step3"
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <ProjectScopeForm data={data} updateData={updateData} />
-            </motion.div>
-          ) : null}
-
-          {currentStep === 4 ? (
-            <motion.div
-              key="step4"
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <DesignBrandingForm data={data} updateData={updateData} />
-            </motion.div>
-          ) : null}
-
-          {currentStep === 5 ? (
-            <motion.div
-              key="step5"
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.25 }}
-            >
-              <BudgetTimelineForm data={data} updateData={updateData} />
-            </motion.div>
-          ) : null}
+          <motion.div
+            key={`step${currentStep}`}
+            initial={{ opacity: 0, x: 15 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -15 }}
+            transition={{ duration: 0.25 }}
+          >
+            <StepContent step={currentStep} data={data} updateData={updateData} />
+          </motion.div>
         </AnimatePresence>
 
         {submitError ? (
@@ -357,7 +266,7 @@ export function OnboardingForm() {
             Voltar
           </Button>
 
-          {currentStep < totalSteps ? (
+          {currentStep < TOTAL_STEPS ? (
             <Button type="submit">Proximo passo</Button>
           ) : (
             <Button type="submit" disabled={isSubmitting}>

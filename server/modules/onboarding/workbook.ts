@@ -98,16 +98,19 @@ function createIdentificationSheet(workbook: ExcelJS.Workbook, input: Onboarding
     ]);
   }
 
-  addKeyValueRows(sheet, "3. Contexto Estrategico", [
+  addKeyValueRows(sheet, "3. Estrategia e Mercado", [
     ["Objetivo principal", input.primaryGoal],
-    ["O que nao esta funcionando hoje", input.currentPainPoint],
-    ["Perfil do publico-alvo", input.targetAudience],
+    ["Dores atuais", arrayToText(input.currentPainPoints)],
+    ...(input.currentPainPointOther ? [["Dor (outro)", input.currentPainPointOther] as [string, string]] : []),
+    ["Tipo de publico-alvo", arrayToText(input.targetAudienceTypes)],
     ["Faixa etaria predominante", arrayToText(input.audienceAgeRange)],
     ["Comportamento digital", arrayToText(input.audienceDigitalBehavior)],
-    ["Principais concorrentes", input.competitors],
-    ["O que admira nos concorrentes", input.competitorLikes],
-    ["Proposta unica de valor (USP)", input.uniqueValueProposition],
+    ["Principais concorrentes", input.competitors || "Nao informado"],
+    ["O que admira nos concorrentes", arrayToText(input.competitorLikes)],
+    ["Diferenciais competitivos (USP)", arrayToText(input.uniqueValueProps)],
+    ...(input.uniqueValuePropOther ? [["Diferencial (outro)", input.uniqueValuePropOther] as [string, string]] : []),
     ["Possui redes sociais", boolToText(input.hasSocialMedia)],
+    ...(input.hasSocialMedia ? [["Redes selecionadas", arrayToText(input.socialMediaNetworks)] as [string, string]] : []),
     ["Perfis nas redes", input.hasSocialMedia ? input.socialMediaHandles : "N/A"],
   ]);
 
@@ -127,9 +130,10 @@ function createScopeSheet(workbook: ExcelJS.Workbook, input: OnboardingSubmissio
     cell.font = headerFont;
   });
 
-  addKeyValueRows(sheet, "1. Tipo e Descricao do Projeto", [
+  addKeyValueRows(sheet, "1. Tipo e Objetivos do Projeto", [
     ["Tipo de projeto", input.projectType],
-    ["Descricao geral", input.projectDescription],
+    ["Objetivos do projeto", arrayToText(input.projectGoals)],
+    ...(input.projectGoalsOther ? [["Detalhes adicionais", input.projectGoalsOther] as [string, string]] : []),
   ]);
 
   addKeyValueRows(sheet, "2. Recursos Gerais", [
