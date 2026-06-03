@@ -3,6 +3,13 @@ import { createOnboardingService } from "../../server/modules/onboarding/service
 import type { AppEnv } from "../../server/config/env";
 import type { OnboardingSubmissionInput } from "../../server/modules/onboarding/types";
 
+// Mock the email module
+vi.mock("../../server/modules/onboarding/email", () => ({
+  sendBriefingEmail: vi.fn().mockResolvedValue(undefined),
+}));
+
+import { sendBriefingEmail } from "../../server/modules/onboarding/email";
+
 function buildValidInput(): OnboardingSubmissionInput {
   return {
     fullName: "Maria Silva",
@@ -75,11 +82,11 @@ function createMockEnv(): AppEnv {
     SUPABASE_ANON_KEY: "test-anon-key",
     SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
     SUPABASE_STORAGE_BUCKET: "onboarding",
-    EVOLUTION_API_URL: "https://evo.test.io/",
-    EVOLUTION_API_KEY: "evo-key",
-    EVOLUTION_INSTANCE_NAME: "test-instance",
-    COMPANY_WHATSAPP_NUMBER: "5571982589134",
-    ONBOARDING_REPORT_GROUP_JID: "5511999999999@g.us",
+    GMAIL_USER: "test@gmail.com",
+    GMAIL_CLIENT_ID: "test-client-id",
+    GMAIL_CLIENT_SECRET: "test-client-secret",
+    GMAIL_REFRESH_TOKEN: "test-refresh-token",
+    NOTIFICATION_EMAIL: "notify@gmail.com",
     MAX_FILE_SIZE_BYTES: 10485760,
   };
 }
@@ -101,15 +108,13 @@ function createMockSupabase() {
 }
 
 describe("createOnboardingService", () => {
-  it("submits successfully and returns sent whatsapp status", async () => {
+  it("submits successfully and sends email notification", async () => {
     const env = createMockEnv();
     const supabase = createMockSupabase();
-    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve("") });
 
     const service = createOnboardingService({
       env,
       supabase: supabase as any,
-      fetchImpl: fetchImpl as any,
     });
 
     const result = await service.submit(buildValidInput());
@@ -118,24 +123,23 @@ describe("createOnboardingService", () => {
     expect(result.whatsappStatus).toBe("sent");
     expect(result.warning).toBeUndefined();
     expect(supabase.from).toHaveBeenCalled();
-    expect(fetchImpl).toHaveBeenCalled();
+    expect(sendBriefingEmail).toHaveBeenCalledWith(env, expect.objectContaining({ fullName: "Maria Silva" }));
   });
 
-  it("returns failed whatsapp status when Evolution API fails", async () => {
+  it("returns failed status when email sending fails", async () => {
     const env = createMockEnv();
     const supabase = createMockSupabase();
-    const fetchImpl = vi.fn().mockResolvedValue({ ok: false, text: () => Promise.resolve("API Error") });
+    vi.mocked(sendBriefingEmail).mockRejectedValueOnce(new Error("SMTP connection failed"));
 
     const service = createOnboardingService({
       env,
       supabase: supabase as any,
-      fetchImpl: fetchImpl as any,
     });
 
     const result = await service.submit(buildValidInput());
 
     expect(result.whatsappStatus).toBe("failed");
-    expect(result.warning).toContain("Falha ao enviar planilha via Evolution");
+    expect(result.warning).toContain("SMTP connection failed");
   });
 
   it("throws when supabase insert fails", async () => {
@@ -150,7 +154,6 @@ describe("createOnboardingService", () => {
     const service = createOnboardingService({
       env,
       supabase: supabase as any,
-      fetchImpl: vi.fn() as any,
     });
 
     await expect(service.submit(buildValidInput())).rejects.toThrow("Falha ao salvar submissao: DB Error");

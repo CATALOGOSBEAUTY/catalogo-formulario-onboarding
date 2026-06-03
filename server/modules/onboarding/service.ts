@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppEnv } from "../../config/env.js";
-import { buildOnboardingWorkbook } from "./workbook.js";
+import { sendBriefingEmail } from "./email.js";
 import type {
   OnboardingService,
   OnboardingSubmissionInput,
@@ -12,37 +12,6 @@ import type {
 interface CreateOnboardingServiceDeps {
   env: AppEnv;
   supabase: SupabaseClient;
-  fetchImpl?: typeof fetch;
-}
-
-function sanitizeDigits(value: string) {
-  return value.replace(/\D/g, "");
-}
-
-function normalizeCommercialWhatsAppNumber(value: string) {
-  const digits = sanitizeDigits(value);
-
-  if (!digits) {
-    throw new Error("WhatsApp comercial sem numero valido.");
-  }
-
-  if (digits.startsWith("55")) {
-    return digits;
-  }
-
-  if (digits.length === 10 || digits.length === 11) {
-    return `55${digits}`;
-  }
-
-  return digits;
-}
-
-function resolveReportDestinationNumber(env: AppEnv) {
-  if (env.ONBOARDING_REPORT_GROUP_JID) {
-    return env.ONBOARDING_REPORT_GROUP_JID;
-  }
-
-  return env.COMPANY_WHATSAPP_NUMBER;
 }
 
 function sanitizeSegment(value: string) {
@@ -51,15 +20,6 @@ function sanitizeSegment(value: string) {
     .replace(/[^a-z0-9.-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-}
-
-function getEvolutionHeaders(apiKey: string) {
-  return {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    apikey: apiKey,
-    Authorization: `Bearer ${apiKey}`,
-  };
 }
 
 async function uploadFiles(
@@ -96,39 +56,9 @@ async function uploadFiles(
   return uploadedFiles;
 }
 
-async function sendWhatsAppWorkbookMessage(
-  env: AppEnv,
-  fetchImpl: typeof fetch,
-  destinationNumber: string,
-  input: OnboardingSubmissionInput,
-) {
-  const workbook = await buildOnboardingWorkbook(input);
-  const fileName = `briefing-${sanitizeSegment(input.companyName || input.fullName || "cliente")}.xlsx`;
-  const response = await fetchImpl(
-    `${env.EVOLUTION_API_URL.replace(/\/+$/, "")}/message/sendMedia/${env.EVOLUTION_INSTANCE_NAME}`,
-    {
-      method: "POST",
-      headers: getEvolutionHeaders(env.EVOLUTION_API_KEY),
-      body: JSON.stringify({
-        number: destinationNumber,
-        mediatype: "document",
-        mimetype: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        media: workbook.toString("base64"),
-        fileName,
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Falha ao enviar planilha via Evolution: ${errorText}`);
-  }
-}
-
 export function createOnboardingService({
   env,
   supabase,
-  fetchImpl = fetch,
 }: CreateOnboardingServiceDeps): OnboardingService {
   return {
     async submit(input: OnboardingSubmissionInput): Promise<OnboardingSubmissionResult> {
@@ -224,10 +154,9 @@ export function createOnboardingService({
         }
       }
 
-      // Send WhatsApp workbook
+      // Send email notification
       try {
-        const destinationNumber = resolveReportDestinationNumber(env);
-        await sendWhatsAppWorkbookMessage(env, fetchImpl, destinationNumber, input);
+        await sendBriefingEmail(env, input);
         await supabase
           .from("onboarding_submissions")
           .update({
@@ -242,7 +171,7 @@ export function createOnboardingService({
           whatsappStatus: "sent",
         };
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Falha no envio do WhatsApp";
+        const message = error instanceof Error ? error.message : "Falha no envio do e-mail";
         await supabase
           .from("onboarding_submissions")
           .update({
