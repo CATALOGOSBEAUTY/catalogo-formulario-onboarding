@@ -20,11 +20,5 @@ services:
         sync: false
       - key: SUPABASE_STORAGE_BUCKET
         value: onboarding-uploads
-      - key: EVOLUTION_API_URL
-        sync: false
-      - key: EVOLUTION_API_KEY
-        sync: false
-      - key: EVOLUTION_INSTANCE_NAME
-        sync: false
       - key: MAX_FILE_SIZE_BYTES
         value: "10485760"

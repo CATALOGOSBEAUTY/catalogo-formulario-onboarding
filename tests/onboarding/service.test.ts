@@ -3,13 +3,6 @@ import { createOnboardingService } from "../../server/modules/onboarding/service
 import type { AppEnv } from "../../server/config/env";
 import type { OnboardingSubmissionInput } from "../../server/modules/onboarding/types";
 
-// Mock the email module
-vi.mock("../../server/modules/onboarding/email", () => ({
-  sendBriefingEmail: vi.fn().mockResolvedValue(undefined),
-}));
-
-import { sendBriefingEmail } from "../../server/modules/onboarding/email";
-
 function buildValidInput(): OnboardingSubmissionInput {
   return {
     fullName: "Maria Silva",
@@ -82,11 +75,6 @@ function createMockEnv(): AppEnv {
     SUPABASE_ANON_KEY: "test-anon-key",
     SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
     SUPABASE_STORAGE_BUCKET: "onboarding",
-    GMAIL_USER: "test@gmail.com",
-    GMAIL_CLIENT_ID: "test-client-id",
-    GMAIL_CLIENT_SECRET: "test-client-secret",
-    GMAIL_REFRESH_TOKEN: "test-refresh-token",
-    NOTIFICATION_EMAIL: "notify@gmail.com",
     MAX_FILE_SIZE_BYTES: 10485760,
   };
 }
@@ -108,7 +96,7 @@ function createMockSupabase() {
 }
 
 describe("createOnboardingService", () => {
-  it("submits successfully and sends email notification", async () => {
+  it("submits successfully and returns pending status", async () => {
     const env = createMockEnv();
     const supabase = createMockSupabase();
 
@@ -120,26 +108,9 @@ describe("createOnboardingService", () => {
     const result = await service.submit(buildValidInput());
 
     expect(result.submissionId).toBeDefined();
-    expect(result.whatsappStatus).toBe("sent");
+    expect(result.whatsappStatus).toBe("pending");
     expect(result.warning).toBeUndefined();
     expect(supabase.from).toHaveBeenCalled();
-    expect(sendBriefingEmail).toHaveBeenCalledWith(env, expect.objectContaining({ fullName: "Maria Silva" }));
-  });
-
-  it("returns failed status when email sending fails", async () => {
-    const env = createMockEnv();
-    const supabase = createMockSupabase();
-    vi.mocked(sendBriefingEmail).mockRejectedValueOnce(new Error("SMTP connection failed"));
-
-    const service = createOnboardingService({
-      env,
-      supabase: supabase as any,
-    });
-
-    const result = await service.submit(buildValidInput());
-
-    expect(result.whatsappStatus).toBe("failed");
-    expect(result.warning).toContain("SMTP connection failed");
   });
 
   it("throws when supabase insert fails", async () => {

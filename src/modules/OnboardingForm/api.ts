@@ -133,12 +133,16 @@ export async function submitOnboardingForm(
     xhr.onload = () => {
       onProgress?.(100);
       try {
-        const payload = JSON.parse(xhr.responseText || "{}") as SubmitOnboardingResponse | { error?: string };
+        const rawPayload = JSON.parse(xhr.responseText || "{}");
         if (xhr.status < 200 || xhr.status >= 300) {
-          reject(new Error(typeof payload === "object" && payload && "error" in payload ? payload.error || "Falha ao enviar formulario." : "Falha ao enviar formulario."));
+          reject(new Error(rawPayload && typeof rawPayload === "object" && "error" in rawPayload ? rawPayload.error || "Falha ao enviar formulario." : "Falha ao enviar formulario."));
           return;
         }
-        resolve(payload as SubmitOnboardingResponse);
+        const mappedPayload: SubmitOnboardingResponse = {
+          id: rawPayload.submissionId || rawPayload.id || "",
+          warning: rawPayload.warning,
+        };
+        resolve(mappedPayload);
       } catch {
         reject(new Error("Falha ao interpretar resposta do formulario."));
       }

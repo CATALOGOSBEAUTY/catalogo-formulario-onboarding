@@ -7,11 +7,6 @@ const envSchema = z.object({
   SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   SUPABASE_STORAGE_BUCKET: z.string().min(1).default("onboarding-uploads"),
-  GMAIL_USER: z.string().email(),
-  GMAIL_CLIENT_ID: z.string().min(1),
-  GMAIL_CLIENT_SECRET: z.string().min(1),
-  GMAIL_REFRESH_TOKEN: z.string().min(1),
-  NOTIFICATION_EMAIL: z.string().email(),
   MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive().default(10 * 1024 * 1024),
 });
 

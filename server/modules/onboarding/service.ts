@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppEnv } from "../../config/env.js";
-import { sendBriefingEmail } from "./email.js";
+
 import type {
   OnboardingService,
   OnboardingSubmissionInput,
@@ -154,39 +154,10 @@ export function createOnboardingService({
         }
       }
 
-      // Send email notification
-      try {
-        await sendBriefingEmail(env, input);
-        await supabase
-          .from("onboarding_submissions")
-          .update({
-            whatsapp_status: "sent",
-            whatsapp_error: null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", submissionId);
-
-        return {
-          submissionId,
-          whatsappStatus: "sent",
-        };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Falha no envio do e-mail";
-        await supabase
-          .from("onboarding_submissions")
-          .update({
-            whatsapp_status: "failed",
-            whatsapp_error: message,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", submissionId);
-
-        return {
-          submissionId,
-          whatsappStatus: "failed",
-          warning: message,
-        };
-      }
+      return {
+        submissionId,
+        whatsappStatus: "pending",
+      };
     },
   };
 }

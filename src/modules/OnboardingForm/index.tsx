@@ -17,6 +17,7 @@ import { INITIAL_FORM_STATE } from "./types";
 import { Button } from "@/src/components/ui/Button";
 import { submitOnboardingForm } from "./api";
 import { getStepValidationError } from "./validation";
+import { getWhatsAppUrl } from "./whatsapp";
 
 const TOTAL_STEPS = 11;
 
@@ -127,6 +128,7 @@ export function OnboardingForm() {
   };
 
   if (isSubmitted) {
+    const whatsappUrl = getWhatsAppUrl(data);
     return (
       <div className="w-full max-w-2xl mx-auto mt-16 px-4 flex flex-col items-center justify-center text-center space-y-6">
         <motion.div
@@ -153,8 +155,7 @@ export function OnboardingForm() {
           transition={{ delay: 0.2 }}
           className="text-slate-500 max-w-lg leading-relaxed"
         >
-          Recebemos os dados do seu projeto. Nossa equipe vai analisar o escopo
-          e entrar em contato para dar sequencia a proposta comercial.
+          Recebemos os dados do seu projeto. Para agilizar o seu atendimento, envie as informações diretamente para nosso WhatsApp clicando no botão abaixo.
         </motion.p>
 
         {submitWarning ? (
@@ -172,8 +173,24 @@ export function OnboardingForm() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="pt-8"
+          className="pt-4 flex flex-col sm:flex-row gap-4 items-center justify-center w-full"
         >
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-xl font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.98] px-6 py-3 text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_18px_45px_rgba(16,185,129,0.26)] hover:shadow-[0_16px_35px_rgba(16,185,129,0.22)]"
+          >
+            <svg
+              className="mr-2 h-5 w-5 fill-current"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.62.962 3.21 1.493 4.904 1.495 5.482.004 9.948-4.414 9.95-9.847.002-2.632-1.019-5.105-2.876-6.966-1.857-1.863-4.325-2.889-6.96-2.891-5.485 0-9.953 4.418-9.956 9.852-.001 1.834.501 3.626 1.455 5.207L1.936 21.07l4.711-1.916zM17.472 14.382c-.32-.16-1.89-.933-2.185-1.041-.295-.108-.51-.16-.724.162-.214.32-.828 1.042-.997 1.233-.169.19-.338.213-.658.054-.32-.16-1.35-.497-2.57-1.583-.95-.847-1.59-1.893-1.777-2.214-.187-.32-.02-.492.14-.65.144-.143.32-.374.48-.562.16-.188.214-.32.32-.534.107-.213.054-.4-.027-.56-.08-.16-.724-1.745-.992-2.392-.262-.63-.53-.54-.724-.55-.187-.01-.402-.01-.617-.01-.215 0-.564.08-.86.4-.295.32-1.127 1.101-1.127 2.684 0 1.583 1.153 3.111 1.313 3.325.16.213 2.269 3.465 5.5 4.86.768.332 1.368.53 1.837.678.772.245 1.474.21 2.03.127.619-.092 1.89-.773 2.155-1.48.265-.708.265-1.314.187-1.44-.08-.127-.295-.214-.615-.374z" />
+            </svg>
+            Enviar via WhatsApp
+          </a>
+
           <Button onClick={() => window.location.reload()} variant="outline">
             Voltar ao inicio
           </Button>
